@@ -17,6 +17,7 @@ var uiTemplate = template.Must(template.New("ui").Funcs(template.FuncMap{
 	"millicores": func(m int64) float64 { return float64(m) / 1000 },
 	"gib":        func(m int64) float64 { return float64(m) / 1024 },
 	"change":     fmtChange,
+	"md":         renderMarkdown,
 	"changei":    func(b, a int) string { return fmtChange(float64(b), float64(a), 0) },
 }).Parse(`<!doctype html>
 <html lang="ru">
@@ -30,6 +31,17 @@ var uiTemplate = template.Must(template.New("ui").Funcs(template.FuncMap{
  h3{font-size:.95rem;margin-top:1.4rem}
  tr.best td{background:#f0fdf4;font-weight:600}
  details{margin-top:.4rem}
+ .md{background:#f9fafb;border:1px solid #e5e7eb;border-radius:6px;padding:.4rem 1rem;font-size:.9rem;line-height:1.5}
+ .md h3,.md h4,.md h5,.md h6{margin:1rem 0 .4rem}
+ .md p{margin:.5rem 0}
+ .md ul,.md ol{margin:.4rem 0;padding-left:1.4rem}
+ .md li{margin:.15rem 0}
+ .md code{background:#eef0f3;padding:.05rem .3rem;border-radius:4px;font-size:.85em}
+ .md pre{background:#1f2937;color:#f9fafb;padding:.7rem;border-radius:6px;overflow-x:auto}
+ .md pre code{background:none;padding:0;color:inherit}
+ .md blockquote{margin:.5rem 0;padding:.1rem .8rem;border-left:3px solid #cbd5e1;color:#475569}
+ .md table{margin:.5rem 0}
+ .md hr{border:none;border-top:1px solid #e5e7eb;margin:.8rem 0}
  fieldset{border:1px solid #ccc;border-radius:6px;margin-bottom:1rem;padding:1rem}
  label{display:block;margin:.6rem 0 .2rem;font-weight:600;font-size:.9rem}
  select,textarea{width:100%;box-sizing:border-box;font-family:inherit;padding:.4rem;font-size:.9rem}
@@ -196,7 +208,7 @@ var uiTemplate = template.Must(template.New("ui").Funcs(template.FuncMap{
 
 {{if .ReviewText}}
 <h2>Ревью модели</h2>
-<pre>{{.ReviewText}}</pre>
+<div class="md">{{md .ReviewText}}</div>
 {{end}}
 
 </body>

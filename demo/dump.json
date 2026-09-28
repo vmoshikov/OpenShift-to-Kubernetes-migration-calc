@@ -1,0 +1,79 @@
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "items": [
+    {
+      "apiVersion": "apps/v1", "kind": "Deployment",
+      "metadata": {"name": "web-frontend", "namespace": "shop", "uid": "3f1c", "resourceVersion": "88121",
+        "labels": {"app": "web-frontend"},
+        "annotations": {"deployment.kubernetes.io/revision": "14"}},
+      "spec": {"replicas": 6, "selector": {"matchLabels": {"app": "web-frontend"}},
+        "template": {"metadata": {"labels": {"app": "web-frontend"}}, "spec": {"containers": [
+          {"name": "web-frontend", "image": "registry.example.com/shop/web-frontend:2.4.1",
+           "ports": [{"containerPort": 8080}],
+           "readinessProbe": {"httpGet": {"path": "/healthz", "port": 8080}},
+           "resources": {"requests": {"cpu": "250m", "memory": "512Mi"}, "limits": {"cpu": "1", "memory": "1Gi"}}}]}}},
+      "status": {"replicas": 6, "readyReplicas": 6}
+    },
+    {
+      "apiVersion": "apps.openshift.io/v1", "kind": "DeploymentConfig",
+      "metadata": {"name": "orders-api", "namespace": "shop", "labels": {"app": "orders-api"},
+        "annotations": {"openshift.io/generated-by": "OpenShiftNewApp"}},
+      "spec": {"replicas": 8, "selector": {"app": "orders-api"}, "strategy": {"type": "Rolling"},
+        "triggers": [{"type": "ConfigChange"}],
+        "template": {"metadata": {"labels": {"app": "orders-api"}}, "spec": {"containers": [
+          {"name": "orders-api", "image": "registry.example.com/shop/orders-api:5.0.3",
+           "env": [{"name": "DB_HOST", "value": "orders-db.shop.svc"}],
+           "resources": {"requests": {"cpu": "500m", "memory": "1Gi"}, "limits": {"cpu": "2", "memory": "2Gi"}}}]}}}
+    },
+    {
+      "apiVersion": "apps.openshift.io/v1", "kind": "DeploymentConfig",
+      "metadata": {"name": "billing", "namespace": "shop", "labels": {"app": "billing"}},
+      "spec": {"replicas": 4, "selector": {"app": "billing"}, "strategy": {"type": "Recreate"},
+        "triggers": [{"type": "ConfigChange"}, {"type": "ImageChange"}],
+        "template": {"metadata": {"labels": {"app": "billing"}}, "spec": {"containers": [
+          {"name": "billing", "image": "image-registry.openshift-image-registry.svc:5000/shop/billing@sha256:9b2e",
+           "resources": {"requests": {"cpu": "250m", "memory": "512Mi"}, "limits": {"cpu": "2", "memory": "2Gi"}}}]}}}
+    },
+    {
+      "apiVersion": "apps/v1", "kind": "Deployment",
+      "metadata": {"name": "catalog", "namespace": "shop", "labels": {"app": "catalog"}},
+      "spec": {"replicas": 6, "selector": {"matchLabels": {"app": "catalog"}},
+        "template": {"metadata": {"labels": {"app": "catalog"}}, "spec": {"containers": [
+          {"name": "catalog", "image": "registry.example.com/shop/catalog:1.9.0",
+           "resources": {"requests": {"cpu": "1", "memory": "2Gi"}, "limits": {"cpu": "1500m", "memory": "3Gi"}}}]}}}
+    },
+    {
+      "apiVersion": "apps/v1", "kind": "Deployment",
+      "metadata": {"name": "search", "namespace": "shop", "labels": {"app": "search"}},
+      "spec": {"replicas": 3, "selector": {"matchLabels": {"app": "search"}},
+        "template": {"metadata": {"labels": {"app": "search"}}, "spec": {"containers": [
+          {"name": "search", "image": "registry.example.com/shop/search:3.2.0",
+           "env": [{"name": "JAVA_OPTS", "value": "-Xmx6g"}],
+           "resources": {"requests": {"cpu": "1", "memory": "4Gi"}, "limits": {"cpu": "2", "memory": "8Gi"}}}]}}}
+    },
+    {
+      "apiVersion": "apps/v1", "kind": "StatefulSet",
+      "metadata": {"name": "redis", "namespace": "shop", "labels": {"app": "redis"}},
+      "spec": {"replicas": 3, "serviceName": "redis", "selector": {"matchLabels": {"app": "redis"}},
+        "template": {"metadata": {"labels": {"app": "redis"}}, "spec": {"containers": [
+          {"name": "redis", "image": "redis:7.2",
+           "resources": {"limits": {"cpu": "1", "memory": "2Gi"}}}]}},
+        "volumeClaimTemplates": [{"metadata": {"name": "data"},
+          "spec": {"accessModes": ["ReadWriteOnce"], "storageClassName": "ocs-storagecluster-ceph-rbd",
+                   "resources": {"requests": {"storage": "20Gi"}}}}]}
+    },
+    {
+      "apiVersion": "apps/v1", "kind": "Deployment",
+      "metadata": {"name": "legacy-reports", "namespace": "shop", "labels": {"app": "legacy-reports"}},
+      "spec": {"replicas": 0, "selector": {"matchLabels": {"app": "legacy-reports"}},
+        "template": {"metadata": {"labels": {"app": "legacy-reports"}}, "spec": {"containers": [
+          {"name": "legacy-reports", "image": "registry.example.com/shop/legacy-reports:0.9", "resources": {}}]}}}
+    },
+    {
+      "apiVersion": "v1", "kind": "Service",
+      "metadata": {"name": "web-frontend", "namespace": "shop"},
+      "spec": {"ports": [{"port": 80, "targetPort": 8080}], "selector": {"app": "web-frontend"}}
+    }
+  ]
+}
