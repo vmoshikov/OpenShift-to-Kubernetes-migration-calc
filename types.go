@@ -2,14 +2,14 @@ package main
 
 import (
 	"fmt"
-	"strings"
+	"math"
 )
 
 // ResourceSpec хранит запрошенные ресурсы в базовых единицах:
 // CPU — в миллиядрах (1000 = 1 vCPU), Mem — в MiB.
 type ResourceSpec struct {
-	CPUMilli int64
-	MemMiB   int64
+	CPUMilli int64 `json:"cpu_milli"`
+	MemMiB   int64 `json:"mem_mib"`
 }
 
 // ContainerSpec — один контейнер пода с requests/limits.
@@ -25,85 +25,144 @@ type ContainerSpec struct {
 type DeploymentSpec struct {
 	Name       string
 	Namespace  string
+	Kind       string // Deployment | DeploymentConfig | StatefulSet
 	Replicas   int
 	Containers []ContainerSpec
-}
-
-// TotalRequests суммирует requests всех контейнеров одного пода этого деплоймента.
-func (d DeploymentSpec) PerPodRequests() ResourceSpec {
-	var r ResourceSpec
-	for _, c := range d.Containers {
-		r.CPUMilli += c.Requests.CPUMilli
-		r.MemMiB += c.Requests.MemMiB
-	}
-	return r
-}
-
-// NodeFlavor — типоразмер узла ("барик") в целевом Mk8s.
-type NodeFlavor struct {
-	Name         string
-	CPUMilli     int64   // общая ёмкость vCPU в миллиядрах
-	MemMiB       int64   // общая ёмкость памяти в MiB
-	RelativeCost float64 // условная стоимость часа для сравнения вариантов sizing
-	// (только для внутреннего выбора лучшего флейвора/пула — наружу выводится
-	// только % оптимизации, а не абсолютные суммы).
+	// Raw — исходный объект из дампа (paste/kubectl/oc) для генерации
+	// манифеста с сохранением image/env/probes/volumes. nil для mock и
+	// llm-paste — тогда генерируется скелет.
+	Raw map[string]interface{}
 }
 
 // EnvProfile описывает, как сущности OpenShift-стенда пересчитываются
 // при эмуляции конкретного контура (DEV/IFT/ПСИ/ПРОМ).
 type EnvProfile struct {
-	Key              string  // dev | ift | psi | prom
-	Label            string  // человекочитаемое имя
-	ReplicaFactor    float64 // доля от prod-реплик (например 0.2 для DEV)
-	MinReplicas      int     // минимум реплик на деплоймент в этом контуре
-	CPUOvercommit    float64 // допустимый overcommit CPU на узле (1.0 = без overcommit)
-	HeadroomPercent  float64 // запас поверх суммарного спроса (HA/failover/рост)
-	SystemReserveCPU int64   // резерв на kubelet/system daemonsets, millicores на узел
-	SystemReserveMem int64   // резерв на kubelet/system daemonsets, MiB на узел
+	Key           string         // dev | ift | psi | prom
+	Label         string         // человекочитаемое имя
+	ReplicaFactor float64        // доля от prod-реплик (например 0.2 для DEV)
+	MinReplicas   int            // минимум реплик на деплоймент в этом контуре
+	Skip          bool           // исключить контур из расчёта
+	Override      LimitsOverride // сжатие limits к requests в этом контуре
 }
 
-// NodePoolAlloc — часть решения по sizing: сколько узлов одного флейвора
-// взять в пул. Итоговое решение может содержать несколько таких записей
-// (смешанный пул узлов), а не только один однородный флейвор.
-type NodePoolAlloc struct {
-	Flavor NodeFlavor
-	Count  int
+// LimitsOverride — сжатие limits к requests: если limits контейнера
+// расходятся с requests сильнее порога, limits пересчитываются в
+// max(requests, Floor) * Target. Корректирует базис «сумма Limits».
+// Интенсивность задаётся уровнем (см. OverrideLevels).
+type LimitsOverride struct {
+	Level string       // off | soft | medium | hard | custom
+	CPU   OverrideRule // Floor в millicores
+	Mem   OverrideRule // Floor в MiB
+}
+
+// OverrideLevels — уровни интенсивности override. Пресеты задают порог и
+// цель (одинаково для CPU и памяти), custom оставляет заданные вручную.
+// auto — уровень подбирается RecommendOverride (см. ApplyOverrideLevel).
+var OverrideLevels = []string{"off", "soft", "medium", "hard", "custom", "auto"}
+
+var overridePresets = map[string]struct{ ratio, target float64 }{
+	"soft":   {3.0, 2.0},
+	"medium": {2.0, 1.5},
+	"hard":   {1.5, 1.2},
+}
+
+// Enabled — override включён (любой уровень, кроме off).
+func (o LimitsOverride) Enabled() bool {
+	return o.Level != "" && o.Level != "off"
+}
+
+// SetLevel выставляет уровень; для пресетов перезаписывает порог и цель.
+func (o *LimitsOverride) SetLevel(level string) error {
+	switch level {
+	case "", "off", "custom":
+	default:
+		p, ok := overridePresets[level]
+		if !ok {
+			return fmt.Errorf("неизвестный уровень override %q (ожидается off | soft | medium | hard | custom | auto)", level)
+		}
+		o.CPU.Ratio, o.CPU.Target = p.ratio, p.target
+		o.Mem.Ratio, o.Mem.Target = p.ratio, p.target
+	}
+	o.Level = level
+	if !o.Enabled() {
+		return nil
+	}
+	if err := o.CPU.Validate(); err != nil {
+		return fmt.Errorf("CPU: %w", err)
+	}
+	if err := o.Mem.Validate(); err != nil {
+		return fmt.Errorf("память: %w", err)
+	}
+	return nil
+}
+
+// OverrideRule — параметры override для одного ресурса (CPU или память).
+type OverrideRule struct {
+	Ratio  float64 `json:"ratio"`  // порог limits/requests, выше которого limits сжимаются
+	Target float64 `json:"target"` // новый limits = max(requests, Floor) * Target
+	Floor  int64   `json:"floor"`  // «пол» requests перед умножением на Target
+}
+
+// DefaultLimitsOverride — дефолты override (выключен): порог x2.0,
+// цель x1.5 (как medium), пол 250m CPU / 256Mi памяти.
+func DefaultLimitsOverride() LimitsOverride {
+	return LimitsOverride{
+		Level: "off",
+		CPU:   OverrideRule{Ratio: 2.0, Target: 1.5, Floor: 250},
+		Mem:   OverrideRule{Ratio: 2.0, Target: 1.5, Floor: 256},
+	}
+}
+
+// Validate проверяет, что параметры имеют смысл: порог и цель ≥ 1 (иначе
+// limits окажется ниже requests), floor ≥ 0, всё конечно.
+func (o OverrideRule) Validate() error {
+	if math.IsNaN(o.Ratio) || math.IsInf(o.Ratio, 0) || o.Ratio < 1 {
+		return fmt.Errorf("порог должен быть конечным числом ≥ 1, получено %v", o.Ratio)
+	}
+	if math.IsNaN(o.Target) || math.IsInf(o.Target, 0) || o.Target < 1 {
+		return fmt.Errorf("цель должна быть конечным числом ≥ 1, получено %v", o.Target)
+	}
+	if o.Floor < 0 {
+		return fmt.Errorf("floor должен быть ≥ 0, получено %d", o.Floor)
+	}
+	return nil
+}
+
+// apply возвращает limits после override и признак, что он сработал.
+// Сжимает только: если пересчитанный limits не меньше исходного, или limits
+// не задан, остаётся исходное значение.
+func (o OverrideRule) apply(req, lim int64) (int64, bool) {
+	if lim <= 0 {
+		return lim, false
+	}
+	if req > 0 && float64(lim) <= float64(req)*o.Ratio {
+		return lim, false
+	}
+	base := req
+	if base < o.Floor {
+		base = o.Floor
+	}
+	newLim := int64(math.Ceil(float64(base) * o.Target))
+	// Не раздуваем limit, не обнуляем его (0 = «без лимита») и не опускаем
+	// ниже requests (K8s отвергнет такой манифест).
+	if newLim >= lim || newLim <= 0 || newLim < req {
+		return lim, false
+	}
+	return newLim, true
 }
 
 // EnvSizingResult — результат расчёта для одного контура.
 type EnvSizingResult struct {
-	Env                 EnvProfile
-	TotalPods           int
-	DemandCPUMilli      int64 // суммарный спрос после HeadroomPercent
-	DemandMemMiB        int64
-	RawCPUMilli         int64 // спрос до headroom (для отчёта)
-	RawMemMiB           int64
-	Pools               []NodePoolAlloc // один или несколько флейворов (смешанный пул)
-	CPUUtilization      float64         // % занятости выбранной конфигурации по CPU
-	MemUtilization      float64         // % занятости по памяти
-	OptimizationPercent float64         // % экономии смешанного пула vs лучший однородный
-	costPerHour         float64         // внутренняя условная стоимость выбранного варианта
-	baselineCostPerHour float64         // внутренняя условная стоимость лучшего однородного варианта
-}
-
-// TotalNodes — суммарное число узлов во всех пулах решения.
-func (r EnvSizingResult) TotalNodes() int {
-	n := 0
-	for _, p := range r.Pools {
-		n += p.Count
-	}
-	return n
-}
-
-// PoolSummary — человекочитаемое описание состава пула, напр.
-// "2 x s-16x64 + 3 x s-4x16".
-func (r EnvSizingResult) PoolSummary() string {
-	var sb strings.Builder
-	for i, p := range r.Pools {
-		if i > 0 {
-			sb.WriteString(" + ")
-		}
-		sb.WriteString(fmt.Sprintf("%d x %s", p.Count, p.Flavor.Name))
-	}
-	return sb.String()
+	Env               EnvProfile
+	TotalPods         int
+	LimitCPUMilli     int64 // сумма limits по подам контура (после override, если включён)
+	LimitMemMiB       int64
+	OrigLimitCPUMilli int64 // сумма limits до override
+	OrigLimitMemMiB   int64
+	Deployments       []DeploymentPlan        // поштучный план контура (для манифестов и JSON)
+	Recommendation    *OverrideRecommendation // заполнено, если уровень override = auto
+	NoLimits          int                     // сколько limits в шаблонах не задано — вместо них взяты requests
+	Table             TableMethodResult       // методика: V = сумма Limits × коэффициент Таблицы 2
+	TableBase         TableMethodResult       // та же методика без override — для оценки его эффекта
+	OverriddenLimits  int                     // сколько limits (CPU/память контейнеров шаблонов) сжато override
 }

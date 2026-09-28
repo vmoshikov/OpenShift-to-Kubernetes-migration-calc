@@ -68,12 +68,13 @@ type k8sContainer struct {
 }
 
 type k8sDeploymentItem struct {
+	Kind     string `json:"kind"`
 	Metadata struct {
 		Name      string `json:"name"`
 		Namespace string `json:"namespace"`
 	} `json:"metadata"`
 	Spec struct {
-		Replicas int `json:"replicas"`
+		Replicas *int `json:"replicas"` // nil — дефолт K8s (1), 0 — выключен
 		Template struct {
 			Spec struct {
 				Containers []k8sContainer `json:"containers"`
@@ -86,15 +87,28 @@ type k8sDeploymentList struct {
 	Items []k8sDeploymentItem `json:"items"`
 }
 
+// workloadKinds — какие типы нагрузки попадают в расчёт. На OpenShift
+// значительная часть сервисов живёт в DeploymentConfig, stateful — в
+// StatefulSet; у всех трёх одинаковый spec.replicas + spec.template.
+var workloadKinds = map[string]bool{"": true, "Deployment": true, "DeploymentConfig": true, "StatefulSet": true}
+
 // FetchDeploymentsFromCluster вызывает `oc`/`kubectl get deployments -A -o json`
 // и превращает результат во внутреннюю модель. Это демонстрационный путь —
 // он читает состояние стенда напрямую, без промежуточного экспорта.
 func FetchDeploymentsFromCluster(binary, namespace string) ([]DeploymentSpec, error) {
+	// DeploymentConfig есть только на OpenShift.
+	resources := "deployments,statefulsets"
+	if binary == "oc" {
+		resources = "deployments,deploymentconfigs,statefulsets"
+	}
+	// TODO: DaemonSet (агенты логов/мониторинга) в managed K8s часто заменяются
+	// сервисами провайдера, но свои DaemonSet занимают ресурсы на КАЖДОЙ ноде —
+	// их стоит учитывать отдельно (× число нод), а не в V.
 	var args []string
 	if namespace == "" || namespace == "all" {
-		args = []string{"get", "deployments", "-A", "-o", "json"}
+		args = []string{"get", resources, "-A", "-o", "json"}
 	} else {
-		args = []string{"get", "deployments", "-n", namespace, "-o", "json"}
+		args = []string{"get", resources, "-n", namespace, "-o", "json"}
 	}
 
 	cmd := exec.Command(binary, args...)
@@ -118,12 +132,21 @@ func parseDeploymentListJSON(data []byte) ([]DeploymentSpec, error) {
 	if err := json.Unmarshal(data, &list); err != nil {
 		return nil, err
 	}
+	// Второй проход — те же items как generic map: сохраняем исходный объект
+	// целиком (image, env, probes, volumes) для генерации манифестов.
+	var raw genericList
+	if err := json.Unmarshal(data, &raw); err != nil {
+		return nil, err
+	}
 
 	deployments := make([]DeploymentSpec, 0, len(list.Items))
-	for _, item := range list.Items {
+	for i, item := range list.Items {
+		if !workloadKinds[item.Kind] {
+			continue // Service, ConfigMap и т.п., если дамп снят через `oc get all`
+		}
 		containers := make([]ContainerSpec, 0, len(item.Spec.Template.Spec.Containers))
 		for _, c := range item.Spec.Template.Spec.Containers {
-			containers = append(containers, ContainerSpec{
+			cs := ContainerSpec{
 				Name: c.Name,
 				Requests: ResourceSpec{
 					CPUMilli: c.Resources.Requests.CPU.toMilliCPU(),
@@ -133,17 +156,34 @@ func parseDeploymentListJSON(data []byte) ([]DeploymentSpec, error) {
 					CPUMilli: c.Resources.Limits.CPU.toMilliCPU(),
 					MemMiB:   c.Resources.Limits.Memory.toMiB(),
 				},
-			})
+			}
+			// Семантика K8s: limit задан, request нет → request = limit.
+			// Без этого override увидел бы бесконечное расхождение и сжал limit.
+			if c.Resources.Requests.CPU == "" && cs.Limits.CPUMilli > 0 {
+				cs.Requests.CPUMilli = cs.Limits.CPUMilli
+			}
+			if c.Resources.Requests.Memory == "" && cs.Limits.MemMiB > 0 {
+				cs.Requests.MemMiB = cs.Limits.MemMiB
+			}
+			containers = append(containers, cs)
 		}
-		replicas := item.Spec.Replicas
-		if replicas == 0 {
-			replicas = 1
+		// TODO: initContainers не учитываются: для планировщика под требует
+		// max(initContainers, sum(containers)) — обычно init меньше, но не всегда.
+		replicas := 1
+		if item.Spec.Replicas != nil {
+			replicas = *item.Spec.Replicas
+		}
+		kind := item.Kind
+		if kind == "" {
+			kind = "Deployment"
 		}
 		deployments = append(deployments, DeploymentSpec{
 			Name:       item.Metadata.Name,
 			Namespace:  item.Metadata.Namespace,
+			Kind:       kind,
 			Replicas:   replicas,
 			Containers: containers,
+			Raw:        raw.Items[i],
 		})
 	}
 	return deployments, nil

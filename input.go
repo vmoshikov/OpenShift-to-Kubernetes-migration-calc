@@ -132,6 +132,7 @@ func parseLLMDeploymentJSON(reply string) ([]DeploymentSpec, error) {
 		deployments = append(deployments, DeploymentSpec{
 			Name:       d.Name,
 			Namespace:  namespace,
+			Kind:       "Deployment",
 			Replicas:   replicas,
 			Containers: containers,
 		})

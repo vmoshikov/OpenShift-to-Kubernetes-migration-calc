@@ -40,6 +40,7 @@ func MockDeployments() []DeploymentSpec {
 		deployments = append(deployments, DeploymentSpec{
 			Name:       t.name,
 			Namespace:  "demo-client",
+			Kind:       "Deployment",
 			Replicas:   t.replicas,
 			Containers: []ContainerSpec{container},
 		})

@@ -57,25 +57,41 @@ type chatResponse struct {
 }
 
 // ReviewSizingPlan отправляет сводку по всем контурам на ревью модели:
-// просим найти риски (недостаточный headroom, SPOF на DEV/IFT, неоптимальный
-// подбор флейвора, подозрительно большие лимиты у legacy-сервисов и т.п.)
-// и дать короткую рекомендацию человеческим языком.
+// просим найти риски (SPOF на DEV/IFT, агрессивный override, подозрительно
+// большие лимиты у legacy-сервисов и т.п.) и дать короткую рекомендацию.
 func ReviewSizingPlan(cfg ReviewConfig, results []EnvSizingResult) (string, error) {
 	var sb strings.Builder
 	sb.WriteString("Ты — SRE-инженер, проверяющий план миграции с OpenShift на managed Kubernetes.\n")
-	sb.WriteString("Вот расчёт capacity по контурам (DEV/IFT/ПСИ/ПРОМ). Проверь план критически:\n")
+	sb.WriteString("Вот расчёт capacity по контурам (DEV/IFT/ПСИ/ПРОМ) по методике: V = сумма limits подов, " +
+		"размер кластера = V × коэффициент Таблицы 2, ноды 8/16 vCPU, RAM ноды ×2/×4 от ядер, не менее 2 нод.\n")
+	sb.WriteString("Проверь план критически:\n")
 	sb.WriteString("1) есть ли риск нехватки ресурсов при пиковой нагрузке;\n")
-	sb.WriteString("2) не занижен ли headroom на ПРОМ;\n")
-	sb.WriteString("3) есть ли смысл сменить флейвор узла для экономии;\n")
+	sb.WriteString("2) не слишком ли агрессивен override limits (риск CPU throttling и OOMKill);\n")
+	sb.WriteString("3) достаточно ли нод для отказоустойчивости на ПСИ/ПРОМ;\n")
 	sb.WriteString("4) любые другие риски миграции.\n")
-	sb.WriteString("Отвечай кратко, по пунктам, на русском.\n\n")
+	sb.WriteString("Отвечай кратко, по пунктам, на русском.\n")
+	// TODO(prometheus): когда появятся метрики — передавать p95/p99 и throttling
+	// по крупнейшим сервисам, чтобы модель проверяла override по нагрузке.
+	sb.WriteString("Важно: базис — limits из манифестов, фактическое потребление (Prometheus) НЕ подключено; " +
+		"укажи, где сжатие limits рискованно без метрик.\n\n")
 
 	for _, r := range results {
+		t := r.Table
 		sb.WriteString(fmt.Sprintf(
-			"[%s] pods=%d, CPU=%dm, Mem=%dMiB, pool=%s, CPU_util=%.1f%%, Mem_util=%.1f%%, optimization=%.1f%%\n",
-			r.Env.Label, r.TotalPods, r.DemandCPUMilli, r.DemandMemMiB,
-			r.PoolSummary(), r.CPUUtilization, r.MemUtilization, r.OptimizationPercent,
+			"[%s] pods=%d, V=%.2f cores, RAM=%.1fGiB, coef=%.2f (%s), nodes=%d x %s, nominal=%dcores/%dGiB, density_CPU=%.0f%%, density_RAM=%.0f%%\n",
+			r.Env.Label, r.TotalPods, t.UserCores, t.UserRAMGiB, t.Best.Coef, t.Best.CoefRange,
+			t.Best.Nodes, t.Best.Name(), t.Best.NominalCores(), t.Best.NominalRAMGiB, t.Best.CPUUtil, t.Best.RAMUtil,
 		))
+	}
+
+	for _, r := range results {
+		if !r.Env.Override.Enabled() {
+			continue
+		}
+		e := r.Effect()
+		sb.WriteString(fmt.Sprintf("[%s] override=%s: V %s cores; RAM %s GiB; nodes %s\n", e.Label, e.Level,
+			fmtChange(e.CoresBefore, e.CoresAfter, 2), fmtChange(e.RAMBefore, e.RAMAfter, 1),
+			fmtChange(float64(e.NodesBefore), float64(e.NodesAfter), 0)))
 	}
 
 	return callChatCompletion(cfg, sb.String())

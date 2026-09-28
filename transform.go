@@ -234,62 +234,68 @@ func transformDeploymentConfigs(namespace, outDir string, warnings []TransformWa
 	}
 
 	for _, item := range items {
-		name := strAt(item, "metadata", "name")
-		ns := strAt(item, "metadata", "namespace")
-		labels := mapGet(item, "metadata", "labels")
-
-		replicas := int64(1)
-		if r, ok := mapGet(item, "spec", "replicas").(float64); ok {
-			replicas = int64(r)
-		}
-
-		selectorMap, _ := mapGet(item, "spec", "selector").(map[string]interface{})
-		if len(selectorMap) == 0 {
-			if tplLabels, ok := mapGet(item, "spec", "template", "metadata", "labels").(map[string]interface{}); ok {
-				selectorMap = tplLabels
-			}
-			warnings = append(warnings, TransformWarning{"DeploymentConfig", name,
-				"spec.selector пуст — matchLabels взят из template.metadata.labels, сверить вручную"})
-		}
-
-		strategyType := strAt(item, "spec", "strategy", "type")
-		deployStrategy := "RollingUpdate"
-		if strategyType == "Recreate" {
-			deployStrategy = "Recreate"
-		}
-
-		if triggers, ok := mapGet(item, "spec", "triggers").([]interface{}); ok && len(triggers) > 0 {
-			warnings = append(warnings, TransformWarning{"DeploymentConfig", name,
-				fmt.Sprintf("%d триггеров (ImageChange/ConfigChange) не переносятся в Deployment — обновление образа перенести в CI/CD пайплайн", len(triggers))})
-		}
-
-		template := mapGet(item, "spec", "template")
-
-		deployment := map[string]interface{}{
-			"apiVersion": "apps/v1",
-			"kind":       "Deployment",
-			"metadata": map[string]interface{}{
-				"name":      name,
-				"namespace": ns,
-				"labels":    labels,
-			},
-			"spec": map[string]interface{}{
-				"replicas": replicas,
-				"selector": map[string]interface{}{
-					"matchLabels": selectorMap,
-				},
-				"strategy": map[string]interface{}{
-					"type": deployStrategy,
-				},
-				"template": template,
-			},
-		}
-
-		if err := writeManifest(outDir, "deployment", ns, name, deployment); err != nil {
+		deployment, ws := dcToDeployment(item)
+		warnings = append(warnings, ws...)
+		if err := writeManifest(outDir, "deployment", strAt(item, "metadata", "namespace"), strAt(item, "metadata", "name"), deployment); err != nil {
 			return warnings, err
 		}
 	}
 	return warnings, nil
+}
+
+// dcToDeployment конвертирует один DeploymentConfig в apps/v1 Deployment.
+// Используется и -transform=dc, и генерацией манифестов по плану sizing.
+func dcToDeployment(item map[string]interface{}) (map[string]interface{}, []TransformWarning) {
+	var warnings []TransformWarning
+	name := strAt(item, "metadata", "name")
+	ns := strAt(item, "metadata", "namespace")
+	labels := mapGet(item, "metadata", "labels")
+
+	replicas := int64(1)
+	if r, ok := mapGet(item, "spec", "replicas").(float64); ok {
+		replicas = int64(r)
+	}
+
+	selectorMap, _ := mapGet(item, "spec", "selector").(map[string]interface{})
+	if len(selectorMap) == 0 {
+		if tplLabels, ok := mapGet(item, "spec", "template", "metadata", "labels").(map[string]interface{}); ok {
+			selectorMap = tplLabels
+		}
+		warnings = append(warnings, TransformWarning{"DeploymentConfig", name,
+			"spec.selector пуст — matchLabels взят из template.metadata.labels, сверить вручную"})
+	}
+
+	strategyType := strAt(item, "spec", "strategy", "type")
+	deployStrategy := "RollingUpdate"
+	if strategyType == "Recreate" {
+		deployStrategy = "Recreate"
+	}
+
+	if triggers, ok := mapGet(item, "spec", "triggers").([]interface{}); ok && len(triggers) > 0 {
+		warnings = append(warnings, TransformWarning{"DeploymentConfig", name,
+			fmt.Sprintf("%d триггеров (ImageChange/ConfigChange) не переносятся в Deployment — обновление образа перенести в CI/CD пайплайн", len(triggers))})
+	}
+
+	deployment := map[string]interface{}{
+		"apiVersion": "apps/v1",
+		"kind":       "Deployment",
+		"metadata": map[string]interface{}{
+			"name":      name,
+			"namespace": ns,
+			"labels":    labels,
+		},
+		"spec": map[string]interface{}{
+			"replicas": replicas,
+			"selector": map[string]interface{}{
+				"matchLabels": selectorMap,
+			},
+			"strategy": map[string]interface{}{
+				"type": deployStrategy,
+			},
+			"template": mapGet(item, "spec", "template"),
+		},
+	}
+	return deployment, warnings
 }
 
 // --- SCC -> Pod Security Admission ----------------------------------------
