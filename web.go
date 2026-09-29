@@ -201,7 +201,8 @@ var uiTemplate = template.Must(template.New("ui").Funcs(template.FuncMap{
 <h3>Подбор baremetal (раскладка подов по серверам)</h3>
 {{with .BaremetalSummary}}<div class="{{if .Worthwhile}}ok{{else}}warn{{end}}">{{.Text}}</div>{{end}}
 <p class="hint">Для каждой конфигурации сервера поды раскладываются по нодам с учётом requests, уплотнения по limits, лимита подов на ноду,
-системного резерва и DaemonSet, разнесения реплик и N+1 на ПСИ/ПРОМ. Выбран вариант с наименьшим объёмом железа.</p>
+системного резерва и DaemonSet, разнесения реплик и N+1 на ПСИ/ПРОМ. Выбран вариант с наименьшим объёмом железа, которого хватает в пуле.
+{{with index .Results 0}}{{with .Packing}}<br>Типы серверов: <b>{{.ServersSource}}</b>.{{end}}{{end}}</p>
 <table>
 <tr><th>Контур</th><th>Подов</th><th>Серверы</th><th>Всего</th><th>Уплотнение CPU / RAM</th><th>Req CPU / RAM</th><th>Подов на ноду</th><th>Узкое место</th></tr>
 {{range .Results}}{{with .Packing}}{{$p := .}}
@@ -209,7 +210,7 @@ var uiTemplate = template.Must(template.New("ui").Funcs(template.FuncMap{
  <td>{{$.EnvLabel $p}}</td>
  <td>{{.Pods}}<br><span class="was">CPU p50 {{.PodStats.CPUP50Milli}}m / max {{.PodStats.CPUMaxMilli}}m</span></td>
  {{with .Best}}
- <td><b>{{.Nodes}} × {{.Server.Name}}</b>{{if .SpareNodes}}<br><span class="was">{{.NodesPacked}} + {{.SpareNodes}} N+1</span>{{end}}<br><span class="was">{{.Server.Cores}} ядер / {{.Server.RAMGiB}} GiB, {{.Server.Disks}}</span></td>
+ <td><b>{{.Nodes}} × {{.Server.Name}}</b>{{if .SpareNodes}}<br><span class="was">{{.NodesPacked}} + {{.SpareNodes}} N+1</span>{{end}}<br><span class="was">{{if .Server.Model}}{{.Server.Model}}, {{end}}{{.Server.Cores}} ядер / {{.Server.RAMGiB}} GiB, {{.Server.Disks}}</span>{{if .Server.Available}}<br><span class="was">в пуле {{.Server.Available}}{{if .PoolShortBy}}, <b>не хватает {{.PoolShortBy}}</b>{{end}}</span>{{end}}</td>
  <td>{{.TotalCores}} ядер / {{.TotalRAMGiB}} GiB</td>
  <td>×{{printf "%.2f" .CPULimitK}} / ×{{printf "%.2f" .MemLimitK}}</td>
  <td>{{printf "%.0f" .CPUReqUtil}}% / {{printf "%.0f" .MemReqUtil}}%</td>
@@ -226,7 +227,7 @@ var uiTemplate = template.Must(template.New("ui").Funcs(template.FuncMap{
 <tr><th>Контур</th><th>Сервер</th><th>Серверов</th><th>Всего</th><th>Уплотнение CPU / RAM</th><th>Req CPU / RAM</th><th>Подов на ноду</th><th>Узкое место</th></tr>
 {{range .Results}}{{$label := .Env.Label}}{{with .Packing}}{{$best := .Best}}{{range .Options}}
 <tr{{if and $best (eq .Server.Name $best.Server.Name)}} class="best"{{end}}>
- <td>{{$label}}</td><td>{{.Server.Name}}</td>
+ <td>{{$label}}</td><td>{{.Server.Name}}{{if .Server.Model}}<br><span class="was">{{.Server.Model}}</span>{{end}}{{if .Server.Available}}<br><span class="was">в пуле {{.Server.Available}}{{if .PoolShortBy}}, не хватает {{.PoolShortBy}}{{end}}</span>{{end}}</td>
  {{if .Feasible}}
  <td>{{.NodesPacked}}{{if .SpareNodes}} + {{.SpareNodes}}{{end}}</td>
  <td>{{.TotalCores}} / {{.TotalRAMGiB}} GiB</td>
@@ -360,6 +361,7 @@ func handleUIIndex(w http.ResponseWriter, r *http.Request, inventoryPath string)
 		}
 		pk := DefaultPackingParams()
 		pk.MaxPodsPerNode = data.MaxPods
+		pk.UseInventoryCatalog(data.Inventory) // типы серверов — из пула CSV
 		var perr error
 		if pk.Profile, perr = ProfileByKeyApp(data.Profile); perr != nil {
 			data.Error = perr.Error()

@@ -83,7 +83,46 @@ func (s InventoryServer) config() ServerConfig {
 	if s.DiskGB > 0 {
 		disks = fmt.Sprintf("%d GB %s", s.DiskGB, s.DiskType)
 	}
-	return ServerConfig{Name: s.typeKey(), Cores: s.Cores, RAMGiB: s.RAMGiB, Disks: strings.TrimSpace(disks)}
+	return ServerConfig{Name: s.typeKey(), Cores: s.Cores, RAMGiB: s.RAMGiB, Disks: strings.TrimSpace(disks),
+		Model: strings.TrimSpace(s.Vendor + " " + strings.TrimPrefix(s.Model, s.Vendor+" "))}
+}
+
+// InventoryTypes — типы серверов пула (available=true, не меньше минимального
+// барика) с числом доступных: каталог для «Подбора baremetal».
+func InventoryTypes(inv []InventoryServer, p PackingParams) []ServerConfig {
+	idx := map[string]int{}
+	var out []ServerConfig
+	for _, s := range inv {
+		if !s.Available || s.Cores < p.MinServer.Cores || s.RAMGiB < p.MinServer.RAMGiB {
+			continue
+		}
+		if i, ok := idx[s.typeKey()]; ok {
+			out[i].Available++
+			continue
+		}
+		c := s.config()
+		c.Available = 1
+		idx[s.typeKey()] = len(out)
+		out = append(out, c)
+	}
+	sort.SliceStable(out, func(i, j int) bool {
+		if out[i].Cores != out[j].Cores {
+			return out[i].Cores < out[j].Cores
+		}
+		return out[i].RAMGiB < out[j].RAMGiB
+	})
+	return out
+}
+
+// UseInventoryCatalog делает типы серверов пула каталогом для подбора.
+func (p *PackingParams) UseInventoryCatalog(src InventorySource) {
+	if src.Err != nil {
+		return
+	}
+	if types := InventoryTypes(src.Servers, *p); len(types) > 0 {
+		p.Servers = types
+		p.ServersSource = "пул серверов " + src.Path
+	}
 }
 
 // ParseInventoryCSV читает CSV инвентаря. Возвращает все строки (включая

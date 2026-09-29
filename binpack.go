@@ -29,24 +29,26 @@ import (
 
 // ServerConfig — конфигурация baremetal-сервера.
 type ServerConfig struct {
-	Name   string `json:"name"`
-	Cores  int    `json:"cores"`
-	RAMGiB int    `json:"ram_gib"`
-	Disks  string `json:"disks,omitempty"` // для вывода; дисковая подсистема не считается
+	Name      string `json:"name"`
+	Cores     int    `json:"cores"`
+	RAMGiB    int    `json:"ram_gib"`
+	Disks     string `json:"disks,omitempty"`     // для вывода; дисковая подсистема не считается
+	Model     string `json:"model,omitempty"`     // вендор и модель (из пула)
+	Available int    `json:"available,omitempty"` // сколько таких в пуле; 0 — каталог без ограничения
 }
 
 // DefaultServers — стартовый каталог. Условные типовые 2-сокетные серверы;
 // в реальном расчёте подставить каталог DropApp Baremetal (-servers=file.json).
 func DefaultServers() []ServerConfig {
 	return []ServerConfig{
-		{"bm-32c-64g", 32, 64, "2×480GB SSD"}, // минимальный барик
-		{"bm-32c-128g", 32, 128, "2×960GB NVMe"},
-		{"bm-32c-256g", 32, 256, "2×960GB NVMe"},
-		{"bm-48c-384g", 48, 384, "2×1.92TB NVMe"},
-		{"bm-64c-512g", 64, 512, "2×1.92TB NVMe"},
-		{"bm-64c-1024g", 64, 1024, "4×1.92TB NVMe"},
-		{"bm-96c-768g", 96, 768, "4×1.92TB NVMe"},
-		{"bm-128c-1024g", 128, 1024, "4×3.84TB NVMe"},
+		{Name: "bm-32c-64g", Cores: 32, RAMGiB: 64, Disks: "2×480GB SSD"}, // минимальный барик
+		{Name: "bm-32c-128g", Cores: 32, RAMGiB: 128, Disks: "2×960GB NVMe"},
+		{Name: "bm-32c-256g", Cores: 32, RAMGiB: 256, Disks: "2×960GB NVMe"},
+		{Name: "bm-48c-384g", Cores: 48, RAMGiB: 384, Disks: "2×1.92TB NVMe"},
+		{Name: "bm-64c-512g", Cores: 64, RAMGiB: 512, Disks: "2×1.92TB NVMe"},
+		{Name: "bm-64c-1024g", Cores: 64, RAMGiB: 1024, Disks: "4×1.92TB NVMe"},
+		{Name: "bm-96c-768g", Cores: 96, RAMGiB: 768, Disks: "4×1.92TB NVMe"},
+		{Name: "bm-128c-1024g", Cores: 128, RAMGiB: 1024, Disks: "4×3.84TB NVMe"},
 	}
 }
 
@@ -107,6 +109,7 @@ func ProfileByKeyApp(key string) (AppProfile, error) {
 type PackingParams struct {
 	Profile           AppProfile     `json:"profile"`
 	Servers           []ServerConfig `json:"servers"`
+	ServersSource     string         `json:"servers_source"`       // откуда типы серверов: пул CSV / -servers / встроенный
 	MaxPodsPerNode    int            `json:"max_pods_per_node"`    // kubelet maxPods
 	MaxPodsPerCluster int            `json:"max_pods_per_cluster"` // ограничение etcd/API-сервера
 	DaemonSetPods     int            `json:"daemonset_pods"`       // DaemonSet на каждой ноде (CNI, CSI, логи, мониторинг)
@@ -122,6 +125,7 @@ func DefaultPackingParams() PackingParams {
 	return PackingParams{
 		Profile:           AppProfiles[1],
 		Servers:           DefaultServers(),
+		ServersSource:     "встроенный условный каталог (нет файла пула серверов)",
 		MaxPodsPerNode:    110,
 		MaxPodsPerCluster: 30000,
 		DaemonSetPods:     6,
@@ -215,18 +219,20 @@ type PackingOption struct {
 	MemLimitK     float64       `json:"mem_limit_overcommit"`
 	PodsPerNode   float64       `json:"pods_per_node_avg"`
 	MaxPodsOnNode int           `json:"pods_per_node_max"`
-	Bottleneck    string        `json:"bottleneck"`            // что ограничивает укладку
-	Composition   []ServerCount `json:"composition,omitempty"` // состав (для смешанного набора — несколько типов)
+	Bottleneck    string        `json:"bottleneck"`              // что ограничивает укладку
+	Composition   []ServerCount `json:"composition,omitempty"`   // состав (для смешанного набора — несколько типов)
+	PoolShortBy   int           `json:"pool_short_by,omitempty"` // сколько серверов этого типа не хватает в пуле
 }
 
 // PackingResult — подбор серверов для контура.
 type PackingResult struct {
-	Pods     int              `json:"pods"`
-	PodStats PodStats         `json:"pod_stats"`
-	Options  []PackingOption  `json:"options"`
-	Best     *PackingOption   `json:"best,omitempty"`
-	Verdict  BaremetalVerdict `json:"verdict"`
-	Warnings []string         `json:"warnings,omitempty"`
+	Pods          int              `json:"pods"`
+	PodStats      PodStats         `json:"pod_stats"`
+	Options       []PackingOption  `json:"options"`
+	Best          *PackingOption   `json:"best,omitempty"`
+	ServersSource string           `json:"servers_source"`
+	Verdict       BaremetalVerdict `json:"verdict"`
+	Warnings      []string         `json:"warnings,omitempty"`
 }
 
 // PodStats — распределение размеров подов (по requests) и характер нагрузки.
@@ -244,7 +250,7 @@ type PodStats struct {
 // PackEnv раскладывает поды контура на каждую конфигурацию из каталога.
 func PackEnv(plans []DeploymentPlan, env EnvProfile, p PackingParams) PackingResult {
 	pods, replicas := podsOf(plans)
-	res := PackingResult{Pods: len(pods), PodStats: podStats(pods)}
+	res := PackingResult{Pods: len(pods), PodStats: podStats(pods), ServersSource: p.ServersSource}
 
 	ha := env.MinReplicas >= 2 // ПСИ/ПРОМ: разнесение реплик и N+1
 	if len(pods) > p.MaxPodsPerCluster {
@@ -257,14 +263,27 @@ func PackEnv(plans []DeploymentPlan, env EnvProfile, p PackingParams) PackingRes
 	for _, s := range p.Servers {
 		res.Options = append(res.Options, packOn(pods, replicas, s, p, ha))
 	}
-	for i := range res.Options {
-		o := &res.Options[i]
-		if o.Feasible && (res.Best == nil || betterPacking(*o, *res.Best)) {
-			res.Best = o
+	// Сначала варианты, которых хватает в пуле; если ни одного — лучший из
+	// нехватающих (сколько докупить видно по PoolShortBy).
+	for pass := 0; pass < 2 && res.Best == nil; pass++ {
+		for i := range res.Options {
+			o := &res.Options[i]
+			if !o.Feasible || (pass == 0 && o.PoolShortBy > 0) {
+				continue
+			}
+			// При нехватке — тот, которого не хватает меньше всего.
+			if res.Best == nil || o.PoolShortBy < res.Best.PoolShortBy ||
+				(o.PoolShortBy == res.Best.PoolShortBy && betterPacking(*o, *res.Best)) {
+				res.Best = o
+			}
 		}
 	}
 	if res.Best == nil && len(pods) > 0 {
-		res.Warnings = append(res.Warnings, "ни одна конфигурация из каталога не вмещает крупнейший под")
+		res.Warnings = append(res.Warnings, "ни один тип сервера не вмещает крупнейший под")
+	}
+	if res.Best != nil && res.Best.PoolShortBy > 0 {
+		res.Warnings = append(res.Warnings, fmt.Sprintf("ни одного типа сервера не хватает в пуле однородно; ближе всего %s — не хватает %d шт. (см. размещение на пуле — смешанный набор)",
+			res.Best.Server.Name, res.Best.PoolShortBy))
 	}
 	return res
 }
@@ -284,6 +303,9 @@ func betterPacking(a, b PackingOption) bool {
 func packOn(pods []packPod, replicas map[string]int, s ServerConfig, p PackingParams, ha bool) PackingOption {
 	opt, _ := packServers(pods, replicas, unlimitedSupply{s}, s, p, ha, ha)
 	opt.Server = s
+	if opt.Feasible && s.Available > 0 && opt.Nodes > s.Available {
+		opt.PoolShortBy = opt.Nodes - s.Available
+	}
 	return opt
 }
 

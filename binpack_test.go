@@ -144,3 +144,49 @@ func TestBaremetalVerdict(t *testing.T) {
 		t.Errorf("memHeavy: %+v", v)
 	}
 }
+
+func TestPackUsesPoolAvailability(t *testing.T) {
+	p := DefaultPackingParams()
+	p.Servers = []ServerConfig{
+		{Name: "small", Cores: 32, RAMGiB: 256, Available: 2}, // меньше ядер, но в пуле мало
+		{Name: "big", Cores: 48, RAMGiB: 1024, Available: 20},
+	}
+	plans := []DeploymentPlan{planOf("svc", 60, 1000, 2048, 2000, 2048)}
+	res := PackEnv(plans, envByKey("prom"), p)
+	if res.Best == nil || res.Best.Server.Name != "big" || res.Best.PoolShortBy != 0 {
+		t.Fatalf("ожидали тип, которого хватает в пуле: %+v", res.Best)
+	}
+	if res.Options[0].PoolShortBy == 0 {
+		t.Errorf("small: ожидали нехватку в пуле, %+v", res.Options[0])
+	}
+	// Никого не хватает — выбирается тип с наименьшей нехваткой.
+	p.Servers[1].Available = 2
+	res = PackEnv(plans, envByKey("prom"), p)
+	short := map[string]int{}
+	for _, o := range res.Options {
+		short[o.Server.Name] = o.PoolShortBy
+	}
+	want := "small"
+	if short["big"] < short["small"] {
+		want = "big"
+	}
+	if res.Best.Server.Name != want || len(res.Warnings) == 0 {
+		t.Errorf("best = %s (нехватки %v), warnings = %v", res.Best.Server.Name, short, res.Warnings)
+	}
+}
+
+func TestInventoryTypesCatalog(t *testing.T) {
+	inv := []InventoryServer{
+		invServer("A1", 32, 768, true), invServer("A2", 32, 768, true), invServer("A3", 32, 768, false),
+		invServer("B1", 48, 1024, true), invServer("T", 16, 64, true),
+	}
+	types := InventoryTypes(inv, DefaultPackingParams())
+	if len(types) != 2 || types[0].Cores != 32 || types[0].Available != 2 || types[1].Available != 1 {
+		t.Errorf("types = %+v", types)
+	}
+	p := DefaultPackingParams()
+	p.UseInventoryCatalog(InventorySource{Path: "x.csv", Servers: inv})
+	if len(p.Servers) != 2 || !strings.Contains(p.ServersSource, "x.csv") {
+		t.Errorf("catalog = %+v, source = %q", p.Servers, p.ServersSource)
+	}
+}

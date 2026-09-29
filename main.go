@@ -26,7 +26,7 @@ func main() {
 	flag.Float64Var(&ovr.Mem.Target, "override-mem-target", ovr.Mem.Target, "override: новый mem limits = max(requests, floor) * target")
 	flag.Int64Var(&ovr.Mem.Floor, "override-mem-floor", ovr.Mem.Floor, "override: пол mem requests, MiB")
 	appProfile := flag.String("profile", "mixed", "профиль приложения для подбора baremetal: oltp | mixed | dwh")
-	serversFile := flag.String("servers", "", "каталог baremetal-серверов (JSON-массив {name, cores, ram_gib, disks}); по умолчанию встроенный")
+	serversFile := flag.String("servers", "", "каталог типов baremetal-серверов (JSON {name, cores, ram_gib, disks}) — только если нет файла пула -inventory; иначе типы берутся из пула")
 	pk := DefaultPackingParams()
 	flag.IntVar(&pk.MaxPodsPerNode, "max-pods", pk.MaxPodsPerNode, "лимит подов на ноду (kubelet maxPods)")
 	flag.IntVar(&pk.MaxPodsPerCluster, "max-cluster-pods", pk.MaxPodsPerCluster, "лимит подов на кластер (etcd/API-сервер)")
@@ -47,6 +47,7 @@ func main() {
 		os.Exit(1)
 	}
 	if *serversFile != "" {
+		pk.ServersSource = "каталог " + *serversFile
 		if pk.Servers, err = LoadServers(*serversFile); err != nil {
 			fmt.Fprintln(os.Stderr, "Ошибка -servers:", err)
 			os.Exit(1)
@@ -107,6 +108,10 @@ func main() {
 	}
 
 	var results []EnvSizingResult
+	// Пул серверов — единый источник: и типы для подбора, и размещение.
+	invSrc := LoadInventoryFile(*inventoryFile)
+	pk.UseInventoryCatalog(invSrc)
+
 	for _, env := range profiles {
 		if (*envFilter != "all" && *envFilter != env.Key) || skip[env.Key] {
 			continue
@@ -130,7 +135,7 @@ func main() {
 	rep := BuildPlanReport(*source, *namespace, fromEnv, deployments, results)
 	rep.Packing = &pk
 
-	if src := LoadInventoryFile(*inventoryFile); src.Err != nil {
+	if src := invSrc; src.Err != nil {
 		// Пул обязателен для размещения, но расчёт без него остаётся полезным.
 		fmt.Fprintln(os.Stderr, "Размещение на пуле пропущено:", src.Err)
 	} else {
@@ -270,7 +275,7 @@ func printEnvReport(r EnvSizingResult) {
 
 func printPacking(p PackingResult) {
 	s := p.PodStats
-	fmt.Printf("  Подбор baremetal (раскладка %d подов):\n", p.Pods)
+	fmt.Printf("  Подбор baremetal (раскладка %d подов; типы серверов: %s):\n", p.Pods, p.ServersSource)
 	fmt.Printf("    Поды (requests): CPU p50 %dm / p95 %dm / max %dm; RAM p50 %dMi / p95 %dMi / max %dMi; %.1f GiB на ядро\n",
 		s.CPUP50Milli, s.CPUP95Milli, s.CPUMaxMilli, s.MemP50MiB, s.MemP95MiB, s.MemMaxMiB, s.GiBPerCore)
 	fmt.Printf("    Характер: %s\n", s.ProfileHint)
@@ -292,8 +297,16 @@ func printPacking(p PackingResult) {
 		if o.SpareNodes > 0 {
 			spare = fmt.Sprintf(" (+%d N+1)", o.SpareNodes)
 		}
-		fmt.Printf("   %s %-14s %d%s серв. = %d ядер / %d GiB; req CPU %.0f%% RAM %.0f%%; уплотнение CPU ×%.2f RAM ×%.2f; подов/нода %.0f (max %d); узкое место: %s\n",
-			mark, o.Server.Name, o.NodesPacked, spare, o.TotalCores, o.TotalRAMGiB, o.CPUReqUtil, o.MemReqUtil,
+		pool := ""
+		if o.Server.Available > 0 {
+			pool = fmt.Sprintf(" [в пуле %d", o.Server.Available)
+			if o.PoolShortBy > 0 {
+				pool += fmt.Sprintf(", не хватает %d", o.PoolShortBy)
+			}
+			pool += "]"
+		}
+		fmt.Printf("   %s %-14s %d%s серв.%s = %d ядер / %d GiB; req CPU %.0f%% RAM %.0f%%; уплотнение CPU ×%.2f RAM ×%.2f; подов/нода %.0f (max %d); узкое место: %s\n",
+			mark, o.Server.Name, o.NodesPacked, spare, pool, o.TotalCores, o.TotalRAMGiB, o.CPUReqUtil, o.MemReqUtil,
 			o.CPULimitK, o.MemLimitK, o.PodsPerNode, o.MaxPodsOnNode, o.Bottleneck)
 	}
 	if b := p.Best; b != nil {
