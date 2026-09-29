@@ -79,9 +79,9 @@ var uiTemplate = template.Must(template.New("ui").Funcs(template.FuncMap{
   <label>Ручной ввод</label>
   <textarea name="paste" placeholder="paste: вставьте JSON-дамп деплойментов&#10;llm-paste: вставьте что угодно похожее на выгрузку ресурсов (oc get all, oc describe dc, таблицу requests/limits)">{{.PasteInput}}</textarea>
 
-  <label>Пул серверов для размещения (CSV, необязательно)</label>
-  <textarea name="inventory" style="min-height:90px" placeholder="product,node_id,node_ci,node_compute_id,available,code,vendor_title,model_title,params&#10;MANAGED_K8S,0,CI02690156,a09lclq2,true,X86_R_2S_SDS_GENERAL_32,Huawei,Huawei 2288H V5,&quot;{&quot;&quot;cpu&quot;&quot;: 32, &quot;&quot;ram&quot;&quot;: 768}&quot;">{{.InventoryInput}}</textarea>
-  <p class="hint">Если задан — серверы для кластеров выбираются из этого пула: только available=true и не меньше минимального барика; контуры делят пул по приоритету ПРОМ → ПСИ → IFT → DEV.</p>
+  <label>Пул серверов для размещения</label>
+  {{with .Inventory}}{{if .Err}}<div class="warn">⚠ {{.Err}} — размещение на пуле не выполняется. Положите CSV пула по этому пути или укажите другой: <code>-inventory=путь.csv</code>.</div>
+  {{else}}<p class="hint">Из файла <code>{{.Path}}</code>: {{len .Servers}} серверов, available=true — {{.Available}} (изменён {{.ModTime.Format "02.01.2006 15:04"}}). Файл перечитывается при каждом расчёте. Берутся только available=true и не меньше минимального барика; контуры делят пул по приоритету ПРОМ → ПСИ → IFT → DEV.</p>{{end}}{{end}}
 
   <label>Данные сняты со стенда</label>
   <select name="from">
@@ -303,7 +303,7 @@ type uiPageData struct {
 	Review          bool
 	From            string
 	Profile         string // профиль приложения для подбора baremetal
-	InventoryInput  string
+	Inventory       InventorySource
 	Placement       *PlacementResult
 	MaxPods         int
 	AppProfiles     []AppProfile
@@ -320,17 +320,18 @@ type uiPageData struct {
 
 // RunWebUI поднимает http-сервер с формой sizing на addr (напр. "127.0.0.1:8080")
 // и блокирует до его остановки/ошибки.
-func RunWebUI(addr string) error {
+func RunWebUI(addr, inventoryPath string) error {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", handleUIIndex)
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { handleUIIndex(w, r, inventoryPath) })
 
 	fmt.Printf("UI слушает на http://%s\n", addr)
 	return http.ListenAndServe(addr, mux)
 }
 
-func handleUIIndex(w http.ResponseWriter, r *http.Request) {
+func handleUIIndex(w http.ResponseWriter, r *http.Request, inventoryPath string) {
 	data := uiPageData{Source: "mock", Env: "all", From: "prom", Profiles: DefaultProfiles(), Levels: OverrideLevels,
-		Profile: "mixed", MaxPods: DefaultPackingParams().MaxPodsPerNode, AppProfiles: AppProfiles}
+		Profile: "mixed", MaxPods: DefaultPackingParams().MaxPodsPerNode, AppProfiles: AppProfiles,
+		Inventory: LoadInventoryFile(inventoryPath)}
 
 	if r.Method == http.MethodPost {
 		if err := r.ParseForm(); err != nil {
@@ -341,7 +342,6 @@ func handleUIIndex(w http.ResponseWriter, r *http.Request) {
 		data.Source = r.FormValue("source")
 		data.Env = r.FormValue("env")
 		data.PasteInput = r.FormValue("paste")
-		data.InventoryInput = r.FormValue("inventory")
 		data.Review = r.FormValue("review") == "1"
 		if f := r.FormValue("from"); f != "" {
 			data.From = f
@@ -430,20 +430,14 @@ func handleUIIndex(w http.ResponseWriter, r *http.Request) {
 			data.Effects = append(data.Effects, total)
 		}
 
-		if strings.TrimSpace(data.InventoryInput) != "" && data.Error == "" {
-			inv, warns, err := ParseInventoryCSV(strings.NewReader(data.InventoryInput))
-			if err != nil {
-				data.Error = err.Error()
-				renderUI(w, data)
-				return
-			}
-			pl := PlaceOnInventory(data.Results, inv, warns, pk)
+		if data.Inventory.Err == nil && data.Error == "" {
+			pl := PlaceOnInventory(data.Results, data.Inventory.Servers, data.Inventory.Warnings, pk)
 			data.Placement = &pl
 		}
 
 		if r.FormValue("format") == "placement" && data.Error == "" {
 			if data.Placement == nil {
-				data.Error = "для выгрузки назначения вставьте CSV пула серверов"
+				data.Error = "назначение недоступно: " + data.Inventory.Err.Error()
 				renderUI(w, data)
 				return
 			}

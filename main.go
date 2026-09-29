@@ -30,7 +30,7 @@ func main() {
 	pk := DefaultPackingParams()
 	flag.IntVar(&pk.MaxPodsPerNode, "max-pods", pk.MaxPodsPerNode, "лимит подов на ноду (kubelet maxPods)")
 	flag.IntVar(&pk.MaxPodsPerCluster, "max-cluster-pods", pk.MaxPodsPerCluster, "лимит подов на кластер (etcd/API-сервер)")
-	inventoryFile := flag.String("inventory", "", "CSV пула подготовленных серверов (product,node_id,node_ci,node_compute_id,available,code,vendor_title,model_title,params) — выбрать размещение из них")
+	inventoryFile := flag.String("inventory", DefaultInventoryPath, "CSV пула подготовленных серверов (product,node_id,node_ci,node_compute_id,available,code,vendor_title,model_title,params) — размещение всегда выбирается из него")
 	placementOut := flag.String("placement-out", "", "записать назначение серверов по контурам в CSV")
 	jsonOut := flag.Bool("json", false, "вывести план машиночитаемым JSON в stdout (для агента/оркестратора) вместо текста")
 	manifestsDir := flag.String("manifests", "", "сгенерировать манифесты под посчитанные контуры в каталог (replicas + limits после override)")
@@ -66,7 +66,7 @@ func main() {
 	}
 
 	if *uiAddr != "" {
-		if err := RunWebUI(*uiAddr); err != nil {
+		if err := RunWebUI(*uiAddr, *inventoryFile); err != nil {
 			fmt.Fprintln(os.Stderr, "Ошибка веб-UI:", err)
 			os.Exit(1)
 		}
@@ -130,18 +130,11 @@ func main() {
 	rep := BuildPlanReport(*source, *namespace, fromEnv, deployments, results)
 	rep.Packing = &pk
 
-	if *inventoryFile != "" {
-		f, err := os.Open(*inventoryFile)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, "Ошибка -inventory:", err)
-			os.Exit(1)
-		}
-		inv, warns, err := ParseInventoryCSV(f)
-		f.Close()
-		if err != nil {
-			fmt.Fprintln(os.Stderr, "Ошибка -inventory:", err)
-			os.Exit(1)
-		}
+	if src := LoadInventoryFile(*inventoryFile); src.Err != nil {
+		// Пул обязателен для размещения, но расчёт без него остаётся полезным.
+		fmt.Fprintln(os.Stderr, "Размещение на пуле пропущено:", src.Err)
+	} else {
+		inv, warns := src.Servers, src.Warnings
 		pl := PlaceOnInventory(results, inv, warns, pk)
 		rep.Placement = &pl
 		if text {

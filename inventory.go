@@ -5,9 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 )
 
 // Размещение на пуле подготовленных серверов (инвентарь CSV):
@@ -20,6 +22,41 @@ import (
 // нехватка всплывает на младших контурах. Внутри контура сначала ищется
 // однородный набор (один тип сервера — один node pool, проще эксплуатация),
 // и только если ни одного типа не хватает — смешанный.
+
+// DefaultInventoryPath — файл пула серверов по умолчанию (флаг -inventory).
+const DefaultInventoryPath = "servers.csv"
+
+// InventorySource — пул, прочитанный из CSV-файла. Файл перечитывается при
+// каждом расчёте, чтобы обновлённая выгрузка подхватывалась без перезапуска.
+type InventorySource struct {
+	Path      string
+	Servers   []InventoryServer
+	Warnings  []string
+	ModTime   time.Time
+	Available int // available=true
+	Err       error
+}
+
+// LoadInventoryFile читает пул серверов из CSV-файла.
+func LoadInventoryFile(path string) InventorySource {
+	src := InventorySource{Path: path}
+	f, err := os.Open(path)
+	if err != nil {
+		src.Err = fmt.Errorf("файл пула серверов %s: %w", path, err)
+		return src
+	}
+	defer f.Close()
+	if st, err := f.Stat(); err == nil {
+		src.ModTime = st.ModTime()
+	}
+	src.Servers, src.Warnings, src.Err = ParseInventoryCSV(f)
+	for _, s := range src.Servers {
+		if s.Available {
+			src.Available++
+		}
+	}
+	return src
+}
 
 // InventoryServer — конкретный сервер из пула.
 type InventoryServer struct {
