@@ -12,20 +12,22 @@ import (
 
 // PlanReport — корень JSON-отчёта.
 type PlanReport struct {
-	SchemaVersion string          `json:"schema_version"`
-	Methodology   MethodologyInfo `json:"methodology"`
-	Source        string          `json:"source"`
-	Namespace     string          `json:"namespace"`
-	FromEnv       string          `json:"from_env"`
-	Deployments   int             `json:"deployments"`
-	SourcePods    int             `json:"source_pods"`
-	Basis         BasisInfo       `json:"basis"`
-	Envs          []EnvReport     `json:"envs"`
-	OverrideSum   *EffectReport   `json:"override_total,omitempty"`
-	DataWarnings  []DataWarning   `json:"data_warnings"`
-	Manifests     *ManifestResult `json:"manifests,omitempty"`
-	Review        string          `json:"review,omitempty"`
-	ReviewError   string          `json:"review_error,omitempty"`
+	SchemaVersion string           `json:"schema_version"`
+	Methodology   MethodologyInfo  `json:"methodology"`
+	Source        string           `json:"source"`
+	Namespace     string           `json:"namespace"`
+	FromEnv       string           `json:"from_env"`
+	Deployments   int              `json:"deployments"`
+	SourcePods    int              `json:"source_pods"`
+	Basis         BasisInfo        `json:"basis"`
+	Envs          []EnvReport      `json:"envs"`
+	OverrideSum   *EffectReport    `json:"override_total,omitempty"`
+	DataWarnings  []DataWarning    `json:"data_warnings"`
+	Packing       *PackingParams   `json:"packing_params,omitempty"`
+	Placement     *PlacementResult `json:"placement,omitempty"`
+	Manifests     *ManifestResult  `json:"manifests,omitempty"`
+	Review        string           `json:"review,omitempty"`
+	ReviewError   string           `json:"review_error,omitempty"`
 }
 
 // reportSchemaVersion — версия JSON-контракта; менять при несовместимых
@@ -101,6 +103,7 @@ type EnvReport struct {
 	Method         MethodReport            `json:"method"`
 	Effect         *EffectReport           `json:"override_effect,omitempty"`
 	NoLimits       int                     `json:"limits_missing"`
+	Packing        *PackingResult          `json:"baremetal_packing,omitempty"`
 	Deployments    []DeploymentPlan        `json:"deployment_plans"`
 }
 
@@ -223,6 +226,7 @@ func BuildPlanReport(source, namespace string, from EnvProfile, ds []DeploymentS
 				BaseNoOvrd: variantReport(r.TableBase.Best),
 			},
 			NoLimits:    r.NoLimits,
+			Packing:     r.Packing,
 			Deployments: r.Deployments,
 		}
 		if er.OverrideLevel == "" {

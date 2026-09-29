@@ -1,0 +1,3926 @@
+{
+ "apiVersion": "v1",
+ "kind": "List",
+ "items": [
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-00",
+    "namespace": "team-0",
+    "labels": {
+     "app": "api-00"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-00"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-00"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-00",
+        "image": "registry.example.com/team-0/api-00:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-01",
+    "namespace": "team-1",
+    "labels": {
+     "app": "api-01"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-01"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-01"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-01",
+        "image": "registry.example.com/team-1/api-01:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-02",
+    "namespace": "team-2",
+    "labels": {
+     "app": "api-02"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-02"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-02"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-02",
+        "image": "registry.example.com/team-2/api-02:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-03",
+    "namespace": "team-3",
+    "labels": {
+     "app": "api-03"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-03"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-03"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-03",
+        "image": "registry.example.com/team-3/api-03:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-04",
+    "namespace": "team-4",
+    "labels": {
+     "app": "api-04"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-04"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-04"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-04",
+        "image": "registry.example.com/team-4/api-04:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-05",
+    "namespace": "team-5",
+    "labels": {
+     "app": "api-05"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-05"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-05"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-05",
+        "image": "registry.example.com/team-5/api-05:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-06",
+    "namespace": "team-0",
+    "labels": {
+     "app": "api-06"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-06"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-06"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-06",
+        "image": "registry.example.com/team-0/api-06:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-07",
+    "namespace": "team-1",
+    "labels": {
+     "app": "api-07"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-07"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-07"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-07",
+        "image": "registry.example.com/team-1/api-07:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-08",
+    "namespace": "team-2",
+    "labels": {
+     "app": "api-08"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-08"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-08"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-08",
+        "image": "registry.example.com/team-2/api-08:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-09",
+    "namespace": "team-3",
+    "labels": {
+     "app": "api-09"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-09"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-09"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-09",
+        "image": "registry.example.com/team-3/api-09:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-10",
+    "namespace": "team-4",
+    "labels": {
+     "app": "api-10"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-10"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-10"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-10",
+        "image": "registry.example.com/team-4/api-10:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-11",
+    "namespace": "team-5",
+    "labels": {
+     "app": "api-11"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-11"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-11"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-11",
+        "image": "registry.example.com/team-5/api-11:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-12",
+    "namespace": "team-0",
+    "labels": {
+     "app": "api-12"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-12"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-12"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-12",
+        "image": "registry.example.com/team-0/api-12:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-13",
+    "namespace": "team-1",
+    "labels": {
+     "app": "api-13"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-13"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-13"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-13",
+        "image": "registry.example.com/team-1/api-13:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-14",
+    "namespace": "team-2",
+    "labels": {
+     "app": "api-14"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-14"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-14"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-14",
+        "image": "registry.example.com/team-2/api-14:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-15",
+    "namespace": "team-3",
+    "labels": {
+     "app": "api-15"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-15"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-15"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-15",
+        "image": "registry.example.com/team-3/api-15:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-16",
+    "namespace": "team-4",
+    "labels": {
+     "app": "api-16"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-16"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-16"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-16",
+        "image": "registry.example.com/team-4/api-16:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-17",
+    "namespace": "team-5",
+    "labels": {
+     "app": "api-17"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-17"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-17"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-17",
+        "image": "registry.example.com/team-5/api-17:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-18",
+    "namespace": "team-0",
+    "labels": {
+     "app": "api-18"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-18"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-18"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-18",
+        "image": "registry.example.com/team-0/api-18:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-19",
+    "namespace": "team-1",
+    "labels": {
+     "app": "api-19"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-19"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-19"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-19",
+        "image": "registry.example.com/team-1/api-19:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-20",
+    "namespace": "team-2",
+    "labels": {
+     "app": "api-20"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-20"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-20"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-20",
+        "image": "registry.example.com/team-2/api-20:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-21",
+    "namespace": "team-3",
+    "labels": {
+     "app": "api-21"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-21"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-21"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-21",
+        "image": "registry.example.com/team-3/api-21:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-22",
+    "namespace": "team-4",
+    "labels": {
+     "app": "api-22"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-22"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-22"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-22",
+        "image": "registry.example.com/team-4/api-22:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-23",
+    "namespace": "team-5",
+    "labels": {
+     "app": "api-23"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-23"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-23"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-23",
+        "image": "registry.example.com/team-5/api-23:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-24",
+    "namespace": "team-0",
+    "labels": {
+     "app": "api-24"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-24"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-24"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-24",
+        "image": "registry.example.com/team-0/api-24:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-25",
+    "namespace": "team-1",
+    "labels": {
+     "app": "api-25"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-25"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-25"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-25",
+        "image": "registry.example.com/team-1/api-25:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-26",
+    "namespace": "team-2",
+    "labels": {
+     "app": "api-26"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-26"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-26"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-26",
+        "image": "registry.example.com/team-2/api-26:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-27",
+    "namespace": "team-3",
+    "labels": {
+     "app": "api-27"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-27"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-27"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-27",
+        "image": "registry.example.com/team-3/api-27:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-28",
+    "namespace": "team-4",
+    "labels": {
+     "app": "api-28"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-28"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-28"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-28",
+        "image": "registry.example.com/team-4/api-28:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-29",
+    "namespace": "team-5",
+    "labels": {
+     "app": "api-29"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-29"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-29"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-29",
+        "image": "registry.example.com/team-5/api-29:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-30",
+    "namespace": "team-0",
+    "labels": {
+     "app": "api-30"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-30"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-30"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-30",
+        "image": "registry.example.com/team-0/api-30:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-31",
+    "namespace": "team-1",
+    "labels": {
+     "app": "api-31"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-31"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-31"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-31",
+        "image": "registry.example.com/team-1/api-31:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-32",
+    "namespace": "team-2",
+    "labels": {
+     "app": "api-32"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-32"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-32"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-32",
+        "image": "registry.example.com/team-2/api-32:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-33",
+    "namespace": "team-3",
+    "labels": {
+     "app": "api-33"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-33"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-33"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-33",
+        "image": "registry.example.com/team-3/api-33:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-34",
+    "namespace": "team-4",
+    "labels": {
+     "app": "api-34"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-34"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-34"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-34",
+        "image": "registry.example.com/team-4/api-34:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-35",
+    "namespace": "team-5",
+    "labels": {
+     "app": "api-35"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-35"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-35"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-35",
+        "image": "registry.example.com/team-5/api-35:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-36",
+    "namespace": "team-0",
+    "labels": {
+     "app": "api-36"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-36"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-36"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-36",
+        "image": "registry.example.com/team-0/api-36:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-37",
+    "namespace": "team-1",
+    "labels": {
+     "app": "api-37"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-37"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-37"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-37",
+        "image": "registry.example.com/team-1/api-37:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-38",
+    "namespace": "team-2",
+    "labels": {
+     "app": "api-38"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-38"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-38"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-38",
+        "image": "registry.example.com/team-2/api-38:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-39",
+    "namespace": "team-3",
+    "labels": {
+     "app": "api-39"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-39"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-39"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-39",
+        "image": "registry.example.com/team-3/api-39:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-40",
+    "namespace": "team-4",
+    "labels": {
+     "app": "api-40"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-40"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-40"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-40",
+        "image": "registry.example.com/team-4/api-40:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-41",
+    "namespace": "team-5",
+    "labels": {
+     "app": "api-41"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-41"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-41"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-41",
+        "image": "registry.example.com/team-5/api-41:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-42",
+    "namespace": "team-0",
+    "labels": {
+     "app": "api-42"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-42"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-42"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-42",
+        "image": "registry.example.com/team-0/api-42:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-43",
+    "namespace": "team-1",
+    "labels": {
+     "app": "api-43"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-43"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-43"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-43",
+        "image": "registry.example.com/team-1/api-43:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-44",
+    "namespace": "team-2",
+    "labels": {
+     "app": "api-44"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-44"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-44"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-44",
+        "image": "registry.example.com/team-2/api-44:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-45",
+    "namespace": "team-3",
+    "labels": {
+     "app": "api-45"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-45"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-45"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-45",
+        "image": "registry.example.com/team-3/api-45:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-46",
+    "namespace": "team-4",
+    "labels": {
+     "app": "api-46"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-46"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-46"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-46",
+        "image": "registry.example.com/team-4/api-46:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-47",
+    "namespace": "team-5",
+    "labels": {
+     "app": "api-47"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-47"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-47"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-47",
+        "image": "registry.example.com/team-5/api-47:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-48",
+    "namespace": "team-0",
+    "labels": {
+     "app": "api-48"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-48"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-48"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-48",
+        "image": "registry.example.com/team-0/api-48:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-49",
+    "namespace": "team-1",
+    "labels": {
+     "app": "api-49"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-49"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-49"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-49",
+        "image": "registry.example.com/team-1/api-49:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-50",
+    "namespace": "team-2",
+    "labels": {
+     "app": "api-50"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-50"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-50"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-50",
+        "image": "registry.example.com/team-2/api-50:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-51",
+    "namespace": "team-3",
+    "labels": {
+     "app": "api-51"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-51"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-51"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-51",
+        "image": "registry.example.com/team-3/api-51:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-52",
+    "namespace": "team-4",
+    "labels": {
+     "app": "api-52"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-52"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-52"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-52",
+        "image": "registry.example.com/team-4/api-52:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-53",
+    "namespace": "team-5",
+    "labels": {
+     "app": "api-53"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-53"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-53"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-53",
+        "image": "registry.example.com/team-5/api-53:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-54",
+    "namespace": "team-0",
+    "labels": {
+     "app": "api-54"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-54"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-54"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-54",
+        "image": "registry.example.com/team-0/api-54:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-55",
+    "namespace": "team-1",
+    "labels": {
+     "app": "api-55"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-55"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-55"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-55",
+        "image": "registry.example.com/team-1/api-55:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-56",
+    "namespace": "team-2",
+    "labels": {
+     "app": "api-56"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-56"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-56"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-56",
+        "image": "registry.example.com/team-2/api-56:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-57",
+    "namespace": "team-3",
+    "labels": {
+     "app": "api-57"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-57"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-57"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-57",
+        "image": "registry.example.com/team-3/api-57:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-58",
+    "namespace": "team-4",
+    "labels": {
+     "app": "api-58"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-58"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-58"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-58",
+        "image": "registry.example.com/team-4/api-58:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "api-59",
+    "namespace": "team-5",
+    "labels": {
+     "app": "api-59"
+    }
+   },
+   "spec": {
+    "replicas": 6,
+    "selector": {
+     "matchLabels": {
+      "app": "api-59"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "api-59"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "api-59",
+        "image": "registry.example.com/team-5/api-59:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "100m",
+          "memory": "256Mi"
+         },
+         "limits": {
+          "cpu": "500m",
+          "memory": "512Mi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "svc-00",
+    "namespace": "team-0",
+    "labels": {
+     "app": "svc-00"
+    }
+   },
+   "spec": {
+    "replicas": 4,
+    "selector": {
+     "matchLabels": {
+      "app": "svc-00"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "svc-00"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "svc-00",
+        "image": "registry.example.com/team-0/svc-00:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "500m",
+          "memory": "1Gi"
+         },
+         "limits": {
+          "cpu": "2",
+          "memory": "2Gi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "svc-01",
+    "namespace": "team-1",
+    "labels": {
+     "app": "svc-01"
+    }
+   },
+   "spec": {
+    "replicas": 4,
+    "selector": {
+     "matchLabels": {
+      "app": "svc-01"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "svc-01"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "svc-01",
+        "image": "registry.example.com/team-1/svc-01:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "500m",
+          "memory": "1Gi"
+         },
+         "limits": {
+          "cpu": "2",
+          "memory": "2Gi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "svc-02",
+    "namespace": "team-2",
+    "labels": {
+     "app": "svc-02"
+    }
+   },
+   "spec": {
+    "replicas": 4,
+    "selector": {
+     "matchLabels": {
+      "app": "svc-02"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "svc-02"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "svc-02",
+        "image": "registry.example.com/team-2/svc-02:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "500m",
+          "memory": "1Gi"
+         },
+         "limits": {
+          "cpu": "2",
+          "memory": "2Gi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "svc-03",
+    "namespace": "team-3",
+    "labels": {
+     "app": "svc-03"
+    }
+   },
+   "spec": {
+    "replicas": 4,
+    "selector": {
+     "matchLabels": {
+      "app": "svc-03"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "svc-03"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "svc-03",
+        "image": "registry.example.com/team-3/svc-03:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "500m",
+          "memory": "1Gi"
+         },
+         "limits": {
+          "cpu": "2",
+          "memory": "2Gi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "svc-04",
+    "namespace": "team-4",
+    "labels": {
+     "app": "svc-04"
+    }
+   },
+   "spec": {
+    "replicas": 4,
+    "selector": {
+     "matchLabels": {
+      "app": "svc-04"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "svc-04"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "svc-04",
+        "image": "registry.example.com/team-4/svc-04:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "500m",
+          "memory": "1Gi"
+         },
+         "limits": {
+          "cpu": "2",
+          "memory": "2Gi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "svc-05",
+    "namespace": "team-5",
+    "labels": {
+     "app": "svc-05"
+    }
+   },
+   "spec": {
+    "replicas": 4,
+    "selector": {
+     "matchLabels": {
+      "app": "svc-05"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "svc-05"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "svc-05",
+        "image": "registry.example.com/team-5/svc-05:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "500m",
+          "memory": "1Gi"
+         },
+         "limits": {
+          "cpu": "2",
+          "memory": "2Gi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "svc-06",
+    "namespace": "team-0",
+    "labels": {
+     "app": "svc-06"
+    }
+   },
+   "spec": {
+    "replicas": 4,
+    "selector": {
+     "matchLabels": {
+      "app": "svc-06"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "svc-06"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "svc-06",
+        "image": "registry.example.com/team-0/svc-06:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "500m",
+          "memory": "1Gi"
+         },
+         "limits": {
+          "cpu": "2",
+          "memory": "2Gi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "svc-07",
+    "namespace": "team-1",
+    "labels": {
+     "app": "svc-07"
+    }
+   },
+   "spec": {
+    "replicas": 4,
+    "selector": {
+     "matchLabels": {
+      "app": "svc-07"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "svc-07"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "svc-07",
+        "image": "registry.example.com/team-1/svc-07:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "500m",
+          "memory": "1Gi"
+         },
+         "limits": {
+          "cpu": "2",
+          "memory": "2Gi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "svc-08",
+    "namespace": "team-2",
+    "labels": {
+     "app": "svc-08"
+    }
+   },
+   "spec": {
+    "replicas": 4,
+    "selector": {
+     "matchLabels": {
+      "app": "svc-08"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "svc-08"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "svc-08",
+        "image": "registry.example.com/team-2/svc-08:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "500m",
+          "memory": "1Gi"
+         },
+         "limits": {
+          "cpu": "2",
+          "memory": "2Gi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "svc-09",
+    "namespace": "team-3",
+    "labels": {
+     "app": "svc-09"
+    }
+   },
+   "spec": {
+    "replicas": 4,
+    "selector": {
+     "matchLabels": {
+      "app": "svc-09"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "svc-09"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "svc-09",
+        "image": "registry.example.com/team-3/svc-09:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "500m",
+          "memory": "1Gi"
+         },
+         "limits": {
+          "cpu": "2",
+          "memory": "2Gi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "svc-10",
+    "namespace": "team-4",
+    "labels": {
+     "app": "svc-10"
+    }
+   },
+   "spec": {
+    "replicas": 4,
+    "selector": {
+     "matchLabels": {
+      "app": "svc-10"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "svc-10"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "svc-10",
+        "image": "registry.example.com/team-4/svc-10:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "500m",
+          "memory": "1Gi"
+         },
+         "limits": {
+          "cpu": "2",
+          "memory": "2Gi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "svc-11",
+    "namespace": "team-5",
+    "labels": {
+     "app": "svc-11"
+    }
+   },
+   "spec": {
+    "replicas": 4,
+    "selector": {
+     "matchLabels": {
+      "app": "svc-11"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "svc-11"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "svc-11",
+        "image": "registry.example.com/team-5/svc-11:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "500m",
+          "memory": "1Gi"
+         },
+         "limits": {
+          "cpu": "2",
+          "memory": "2Gi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "svc-12",
+    "namespace": "team-0",
+    "labels": {
+     "app": "svc-12"
+    }
+   },
+   "spec": {
+    "replicas": 4,
+    "selector": {
+     "matchLabels": {
+      "app": "svc-12"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "svc-12"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "svc-12",
+        "image": "registry.example.com/team-0/svc-12:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "500m",
+          "memory": "1Gi"
+         },
+         "limits": {
+          "cpu": "2",
+          "memory": "2Gi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "svc-13",
+    "namespace": "team-1",
+    "labels": {
+     "app": "svc-13"
+    }
+   },
+   "spec": {
+    "replicas": 4,
+    "selector": {
+     "matchLabels": {
+      "app": "svc-13"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "svc-13"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "svc-13",
+        "image": "registry.example.com/team-1/svc-13:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "500m",
+          "memory": "1Gi"
+         },
+         "limits": {
+          "cpu": "2",
+          "memory": "2Gi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "svc-14",
+    "namespace": "team-2",
+    "labels": {
+     "app": "svc-14"
+    }
+   },
+   "spec": {
+    "replicas": 4,
+    "selector": {
+     "matchLabels": {
+      "app": "svc-14"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "svc-14"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "svc-14",
+        "image": "registry.example.com/team-2/svc-14:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "500m",
+          "memory": "1Gi"
+         },
+         "limits": {
+          "cpu": "2",
+          "memory": "2Gi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "svc-15",
+    "namespace": "team-3",
+    "labels": {
+     "app": "svc-15"
+    }
+   },
+   "spec": {
+    "replicas": 4,
+    "selector": {
+     "matchLabels": {
+      "app": "svc-15"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "svc-15"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "svc-15",
+        "image": "registry.example.com/team-3/svc-15:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "500m",
+          "memory": "1Gi"
+         },
+         "limits": {
+          "cpu": "2",
+          "memory": "2Gi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "svc-16",
+    "namespace": "team-4",
+    "labels": {
+     "app": "svc-16"
+    }
+   },
+   "spec": {
+    "replicas": 4,
+    "selector": {
+     "matchLabels": {
+      "app": "svc-16"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "svc-16"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "svc-16",
+        "image": "registry.example.com/team-4/svc-16:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "500m",
+          "memory": "1Gi"
+         },
+         "limits": {
+          "cpu": "2",
+          "memory": "2Gi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "svc-17",
+    "namespace": "team-5",
+    "labels": {
+     "app": "svc-17"
+    }
+   },
+   "spec": {
+    "replicas": 4,
+    "selector": {
+     "matchLabels": {
+      "app": "svc-17"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "svc-17"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "svc-17",
+        "image": "registry.example.com/team-5/svc-17:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "500m",
+          "memory": "1Gi"
+         },
+         "limits": {
+          "cpu": "2",
+          "memory": "2Gi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "svc-18",
+    "namespace": "team-0",
+    "labels": {
+     "app": "svc-18"
+    }
+   },
+   "spec": {
+    "replicas": 4,
+    "selector": {
+     "matchLabels": {
+      "app": "svc-18"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "svc-18"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "svc-18",
+        "image": "registry.example.com/team-0/svc-18:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "500m",
+          "memory": "1Gi"
+         },
+         "limits": {
+          "cpu": "2",
+          "memory": "2Gi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "svc-19",
+    "namespace": "team-1",
+    "labels": {
+     "app": "svc-19"
+    }
+   },
+   "spec": {
+    "replicas": 4,
+    "selector": {
+     "matchLabels": {
+      "app": "svc-19"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "svc-19"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "svc-19",
+        "image": "registry.example.com/team-1/svc-19:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "500m",
+          "memory": "1Gi"
+         },
+         "limits": {
+          "cpu": "2",
+          "memory": "2Gi"
+         }
+        }
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "analytics-0",
+    "namespace": "dwh",
+    "labels": {
+     "app": "analytics-0"
+    }
+   },
+   "spec": {
+    "replicas": 3,
+    "selector": {
+     "matchLabels": {
+      "app": "analytics-0"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "analytics-0"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "analytics-0",
+        "image": "registry.example.com/dwh/analytics-0:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "4",
+          "memory": "32Gi"
+         },
+         "limits": {
+          "cpu": "8",
+          "memory": "32Gi"
+         }
+        },
+        "env": [
+         {
+          "name": "JAVA_OPTS",
+          "value": "-Xmx24g"
+         }
+        ]
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "analytics-1",
+    "namespace": "dwh",
+    "labels": {
+     "app": "analytics-1"
+    }
+   },
+   "spec": {
+    "replicas": 3,
+    "selector": {
+     "matchLabels": {
+      "app": "analytics-1"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "analytics-1"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "analytics-1",
+        "image": "registry.example.com/dwh/analytics-1:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "4",
+          "memory": "32Gi"
+         },
+         "limits": {
+          "cpu": "8",
+          "memory": "32Gi"
+         }
+        },
+        "env": [
+         {
+          "name": "JAVA_OPTS",
+          "value": "-Xmx24g"
+         }
+        ]
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "analytics-2",
+    "namespace": "dwh",
+    "labels": {
+     "app": "analytics-2"
+    }
+   },
+   "spec": {
+    "replicas": 3,
+    "selector": {
+     "matchLabels": {
+      "app": "analytics-2"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "analytics-2"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "analytics-2",
+        "image": "registry.example.com/dwh/analytics-2:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "4",
+          "memory": "32Gi"
+         },
+         "limits": {
+          "cpu": "8",
+          "memory": "32Gi"
+         }
+        },
+        "env": [
+         {
+          "name": "JAVA_OPTS",
+          "value": "-Xmx24g"
+         }
+        ]
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "analytics-3",
+    "namespace": "dwh",
+    "labels": {
+     "app": "analytics-3"
+    }
+   },
+   "spec": {
+    "replicas": 3,
+    "selector": {
+     "matchLabels": {
+      "app": "analytics-3"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "analytics-3"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "analytics-3",
+        "image": "registry.example.com/dwh/analytics-3:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "4",
+          "memory": "32Gi"
+         },
+         "limits": {
+          "cpu": "8",
+          "memory": "32Gi"
+         }
+        },
+        "env": [
+         {
+          "name": "JAVA_OPTS",
+          "value": "-Xmx24g"
+         }
+        ]
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "analytics-4",
+    "namespace": "dwh",
+    "labels": {
+     "app": "analytics-4"
+    }
+   },
+   "spec": {
+    "replicas": 3,
+    "selector": {
+     "matchLabels": {
+      "app": "analytics-4"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "analytics-4"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "analytics-4",
+        "image": "registry.example.com/dwh/analytics-4:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "4",
+          "memory": "32Gi"
+         },
+         "limits": {
+          "cpu": "8",
+          "memory": "32Gi"
+         }
+        },
+        "env": [
+         {
+          "name": "JAVA_OPTS",
+          "value": "-Xmx24g"
+         }
+        ]
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "analytics-5",
+    "namespace": "dwh",
+    "labels": {
+     "app": "analytics-5"
+    }
+   },
+   "spec": {
+    "replicas": 3,
+    "selector": {
+     "matchLabels": {
+      "app": "analytics-5"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "analytics-5"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "analytics-5",
+        "image": "registry.example.com/dwh/analytics-5:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "4",
+          "memory": "32Gi"
+         },
+         "limits": {
+          "cpu": "8",
+          "memory": "32Gi"
+         }
+        },
+        "env": [
+         {
+          "name": "JAVA_OPTS",
+          "value": "-Xmx24g"
+         }
+        ]
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "analytics-6",
+    "namespace": "dwh",
+    "labels": {
+     "app": "analytics-6"
+    }
+   },
+   "spec": {
+    "replicas": 3,
+    "selector": {
+     "matchLabels": {
+      "app": "analytics-6"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "analytics-6"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "analytics-6",
+        "image": "registry.example.com/dwh/analytics-6:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "4",
+          "memory": "32Gi"
+         },
+         "limits": {
+          "cpu": "8",
+          "memory": "32Gi"
+         }
+        },
+        "env": [
+         {
+          "name": "JAVA_OPTS",
+          "value": "-Xmx24g"
+         }
+        ]
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "apiVersion": "apps/v1",
+   "kind": "Deployment",
+   "metadata": {
+    "name": "analytics-7",
+    "namespace": "dwh",
+    "labels": {
+     "app": "analytics-7"
+    }
+   },
+   "spec": {
+    "replicas": 3,
+    "selector": {
+     "matchLabels": {
+      "app": "analytics-7"
+     }
+    },
+    "template": {
+     "metadata": {
+      "labels": {
+       "app": "analytics-7"
+      }
+     },
+     "spec": {
+      "containers": [
+       {
+        "name": "analytics-7",
+        "image": "registry.example.com/dwh/analytics-7:1.0",
+        "resources": {
+         "requests": {
+          "cpu": "4",
+          "memory": "32Gi"
+         },
+         "limits": {
+          "cpu": "8",
+          "memory": "32Gi"
+         }
+        },
+        "env": [
+         {
+          "name": "JAVA_OPTS",
+          "value": "-Xmx24g"
+         }
+        ]
+       }
+      ]
+     }
+    }
+   }
+  }
+ ]
+}

@@ -25,6 +25,13 @@ func main() {
 	flag.Float64Var(&ovr.Mem.Ratio, "override-mem-ratio", ovr.Mem.Ratio, "override: порог limits/requests по памяти")
 	flag.Float64Var(&ovr.Mem.Target, "override-mem-target", ovr.Mem.Target, "override: новый mem limits = max(requests, floor) * target")
 	flag.Int64Var(&ovr.Mem.Floor, "override-mem-floor", ovr.Mem.Floor, "override: пол mem requests, MiB")
+	appProfile := flag.String("profile", "mixed", "профиль приложения для подбора baremetal: oltp | mixed | dwh")
+	serversFile := flag.String("servers", "", "каталог baremetal-серверов (JSON-массив {name, cores, ram_gib, disks}); по умолчанию встроенный")
+	pk := DefaultPackingParams()
+	flag.IntVar(&pk.MaxPodsPerNode, "max-pods", pk.MaxPodsPerNode, "лимит подов на ноду (kubelet maxPods)")
+	flag.IntVar(&pk.MaxPodsPerCluster, "max-cluster-pods", pk.MaxPodsPerCluster, "лимит подов на кластер (etcd/API-сервер)")
+	inventoryFile := flag.String("inventory", "", "CSV пула подготовленных серверов (product,node_id,node_ci,node_compute_id,available,code,vendor_title,model_title,params) — выбрать размещение из них")
+	placementOut := flag.String("placement-out", "", "записать назначение серверов по контурам в CSV")
 	jsonOut := flag.Bool("json", false, "вывести план машиночитаемым JSON в stdout (для агента/оркестратора) вместо текста")
 	manifestsDir := flag.String("manifests", "", "сгенерировать манифесты под посчитанные контуры в каталог (replicas + limits после override)")
 	flag.Parse()
@@ -34,6 +41,16 @@ func main() {
 	if err != nil {
 		fmt.Fprintln(os.Stderr, "Ошибка -from:", err)
 		os.Exit(1)
+	}
+	if pk.Profile, err = ProfileByKeyApp(*appProfile); err != nil {
+		fmt.Fprintln(os.Stderr, "Ошибка -profile:", err)
+		os.Exit(1)
+	}
+	if *serversFile != "" {
+		if pk.Servers, err = LoadServers(*serversFile); err != nil {
+			fmt.Fprintln(os.Stderr, "Ошибка -servers:", err)
+			os.Exit(1)
+		}
 	}
 	levels, err := parseOverrideLevels(*override)
 	if err != nil {
@@ -102,6 +119,8 @@ func main() {
 		}
 		res := CalculateEnvSizing(deployments, fromEnv, env)
 		res.Recommendation = rec
+		packing := PackEnv(res.Deployments, env, pk)
+		res.Packing = &packing
 		results = append(results, res)
 		if text {
 			printEnvReport(res)
@@ -109,8 +128,43 @@ func main() {
 	}
 
 	rep := BuildPlanReport(*source, *namespace, fromEnv, deployments, results)
+	rep.Packing = &pk
+
+	if *inventoryFile != "" {
+		f, err := os.Open(*inventoryFile)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Ошибка -inventory:", err)
+			os.Exit(1)
+		}
+		inv, warns, err := ParseInventoryCSV(f)
+		f.Close()
+		if err != nil {
+			fmt.Fprintln(os.Stderr, "Ошибка -inventory:", err)
+			os.Exit(1)
+		}
+		pl := PlaceOnInventory(results, inv, warns, pk)
+		rep.Placement = &pl
+		if text {
+			printPlacement(pl)
+		}
+		if *placementOut != "" {
+			out, err := os.Create(*placementOut)
+			if err != nil {
+				fmt.Fprintln(os.Stderr, "Ошибка -placement-out:", err)
+				os.Exit(1)
+			}
+			if err := WritePlacementCSV(out, pl); err != nil {
+				fmt.Fprintln(os.Stderr, "Ошибка -placement-out:", err)
+			}
+			out.Close()
+			if text {
+				fmt.Printf("Назначение серверов записано в %s\n", *placementOut)
+			}
+		}
+	}
 	if text {
 		printTotalEffect(results)
+		printBaremetalSummary(results)
 	}
 
 	if *manifestsDir != "" {
@@ -215,7 +269,47 @@ func printEnvReport(r EnvSizingResult) {
 		}
 	}
 
+	if r.Packing != nil {
+		printPacking(*r.Packing)
+	}
 	fmt.Println()
+}
+
+func printPacking(p PackingResult) {
+	s := p.PodStats
+	fmt.Printf("  Подбор baremetal (раскладка %d подов):\n", p.Pods)
+	fmt.Printf("    Поды (requests): CPU p50 %dm / p95 %dm / max %dm; RAM p50 %dMi / p95 %dMi / max %dMi; %.1f GiB на ядро\n",
+		s.CPUP50Milli, s.CPUP95Milli, s.CPUMaxMilli, s.MemP50MiB, s.MemP95MiB, s.MemMaxMiB, s.GiBPerCore)
+	fmt.Printf("    Характер: %s\n", s.ProfileHint)
+	if p.Verdict.Worthwhile {
+		fmt.Printf("    Baremetal: %s\n", p.Verdict.Message)
+	} else {
+		fmt.Printf("    ⚠ %s\n", p.Verdict.Message)
+	}
+	for _, o := range p.Options {
+		mark := " "
+		if p.Best != nil && o.Server.Name == p.Best.Server.Name {
+			mark = "*"
+		}
+		if !o.Feasible {
+			fmt.Printf("   %s %-14s не подходит: %s\n", mark, o.Server.Name, o.Reason)
+			continue
+		}
+		spare := ""
+		if o.SpareNodes > 0 {
+			spare = fmt.Sprintf(" (+%d N+1)", o.SpareNodes)
+		}
+		fmt.Printf("   %s %-14s %d%s серв. = %d ядер / %d GiB; req CPU %.0f%% RAM %.0f%%; уплотнение CPU ×%.2f RAM ×%.2f; подов/нода %.0f (max %d); узкое место: %s\n",
+			mark, o.Server.Name, o.NodesPacked, spare, o.TotalCores, o.TotalRAMGiB, o.CPUReqUtil, o.MemReqUtil,
+			o.CPULimitK, o.MemLimitK, o.PodsPerNode, o.MaxPodsOnNode, o.Bottleneck)
+	}
+	if b := p.Best; b != nil {
+		fmt.Printf("    Итог:                %d x %s (%d ядер, %d GiB, %s), уплотнение CPU ×%.2f\n",
+			b.Nodes, b.Server.Name, b.Server.Cores, b.Server.RAMGiB, b.Server.Disks, b.CPULimitK)
+	}
+	for _, w := range p.Warnings {
+		fmt.Println("    ВНИМАНИЕ: " + w)
+	}
 }
 
 func printEffect(indent string, e OverrideEffect) {
@@ -284,4 +378,64 @@ func parseOverrideLevels(spec string) (overrideLevels, error) {
 		l.byEnv[key] = lvl
 	}
 	return l, nil
+}
+
+// printBaremetalSummary — итоговый вердикт по baremetal по всем контурам:
+// то, что стоит сказать клиенту первым.
+func printBaremetalSummary(results []EnvSizingResult) {
+	var no []string
+	for _, r := range results {
+		if r.Packing != nil && !r.Packing.Verdict.Worthwhile {
+			no = append(no, r.Env.Label)
+		}
+	}
+	switch {
+	case len(no) == 0:
+		fmt.Println("=== Baremetal: все контуры не меньше минимального кластера ===")
+	case len(no) == len(results):
+		fmt.Println("=== Baremetal нецелесообразен ни для одного контура — рекомендуем виртуальный managed K8s ===")
+	default:
+		fmt.Printf("=== Baremetal нецелесообразен для: %s — для них виртуальный managed K8s ===\n", strings.Join(no, ", "))
+	}
+}
+
+func printPlacement(pl PlacementResult) {
+	fmt.Printf("\n=== Размещение на пуле серверов (доступно %d) ===\n", pl.PoolTotal)
+	for _, e := range pl.Envs {
+		fmt.Printf("--- %s ---\n", e.Label)
+		if e.Option == nil {
+			fmt.Printf("  ⚠ %s\n", e.Shortage)
+			continue
+		}
+		o := e.Option
+		kind := "однородный"
+		if e.Mixed {
+			kind = "смешанный"
+		}
+		var parts []string
+		for _, c := range o.Composition {
+			parts = append(parts, fmt.Sprintf("%d × %s", c.Count, c.Server.Name))
+		}
+		spare := ""
+		if o.SpareNodes > 0 {
+			spare = fmt.Sprintf(", из них %d N+1", o.SpareNodes)
+		}
+		fmt.Printf("  %d серв. (%s%s): %s = %d ядер / %d GiB; уплотнение CPU ×%.2f; узкое место: %s\n",
+			o.Nodes, kind, spare, strings.Join(parts, " + "), o.TotalCores, o.TotalRAMGiB, o.CPULimitK, o.Bottleneck)
+		for _, s := range e.Servers {
+			fmt.Printf("    %-12s %-10s %-26s %s %s (%d ядер / %d GiB)\n", s.NodeCI, s.ComputeID, s.Code, s.Vendor, s.Model, s.Cores, s.RAMGiB)
+		}
+	}
+	if len(pl.Remaining) > 0 {
+		fmt.Println("  Осталось в пуле:")
+		for _, t := range pl.Remaining {
+			fmt.Printf("    %d × %s\n", t.Count, t.Type)
+		}
+	}
+	if len(pl.Skipped) > 0 {
+		fmt.Printf("  Не в пуле (%d):\n", len(pl.Skipped))
+		for _, s := range pl.Skipped {
+			fmt.Println("    " + s)
+		}
+	}
 }

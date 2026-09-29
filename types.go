@@ -165,4 +165,5 @@ type EnvSizingResult struct {
 	Table             TableMethodResult       // методика: V = сумма Limits × коэффициент Таблицы 2
 	TableBase         TableMethodResult       // та же методика без override — для оценки его эффекта
 	OverriddenLimits  int                     // сколько limits (CPU/память контейнеров шаблонов) сжато override
+	Packing           *PackingResult          // подбор baremetal по раскладке подов (bin-packing)
 }
